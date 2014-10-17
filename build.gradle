@@ -21,6 +21,10 @@ idea {
     }
 }
 
+configurations {
+  bundle
+}
+
 
 repositories {
     mavenCentral()
