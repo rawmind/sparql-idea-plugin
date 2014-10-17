@@ -1,5 +1,5 @@
 <idea-plugin version="2">
-  <name>sparql4idea</name>
+  <name>sparql-idea-plugin</name>
   <version>0.1.2</version>
   <description><![CDATA[
   <p>IntelliJ IDEA support for the SPARQL query language.</p>
@@ -15,6 +15,10 @@
   </uul>
   ]]></description>
   <change-notes><![CDATA[
+  <h3>0.2.0</h3>
+  <ul>
+
+  </ul>
   <h3>0.1.2</h3>
   <ul>
     <li>[feature] Code folding for PREFIX and {} blocks</li>
@@ -34,7 +38,7 @@
     <li>[feature] Simple file templates for select and ask queries</li>
   </ul>
   ]]></change-notes>
-  <vendor email="matt.nathan+ideaplug@gmail.com" url="http://github.com/mattnathan/">Matt Nathan</vendor>
+  <vendor email="git.feedback.rawmind@gmail.com" url="http://github.com/rawmind/">Andrey Kovrov</vendor>
   <idea-version since-build="8000" />
   <category>Custom Languages</category>
 
@@ -43,11 +47,16 @@
   </application-components>
 
   <project-components>
-    <!-- Add your project components here -->
+    <component>
+      <implementation-class>com.mn.plug.idea.sparql4idea.ui.SparqlPlugin</implementation-class>
+    </component>
   </project-components>
-
   <actions>
-    <!-- Add your actions here -->
+<action class="com.intellij.codeInsight.generation.actions.CommentByLineCommentAction" id="ss">
+  <keyboard-shortcut first-keystroke="control K" keymap="$default"/>
+  <add-to-group group-id="ToolsMenu" relative-to-action="GenerateJavadoc" anchor="after"/>
+</action>
+
   </actions>
 
   <extensions defaultExtensionNs="com.intellij">

@@ -20,6 +20,8 @@ public interface SparqlTokenTypeSets {
           KW_BASE,
           KW_PREFIX,
           KW_SELECT,
+          KW_INSERT,
+          KW_DELETE,
           KW_CONSTRUCT,
           KW_DESCRIBE,
           KW_ASK,

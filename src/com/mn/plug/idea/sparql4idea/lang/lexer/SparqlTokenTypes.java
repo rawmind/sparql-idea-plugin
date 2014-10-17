@@ -49,6 +49,9 @@ public interface SparqlTokenTypes {
   IElementType KW_IS_BLANK = new SparqlElementType("KW_IS_BLANK");
   IElementType KW_IS_LITERAL = new SparqlElementType("KW_IS_LITERAL");
   IElementType KW_REGEX = new SparqlElementType("KW_REGEX");
+  // sparql 1.1
+  IElementType KW_INSERT = new SparqlElementType("KW_INSERT");
+  IElementType KW_DELETE = new SparqlElementType("KW_DELETE");
 
   IElementType LIT_TRUE = new SparqlElementType("true");
   IElementType LIT_FALSE = new SparqlElementType("false");

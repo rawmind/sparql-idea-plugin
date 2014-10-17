@@ -1,0 +1,10 @@
+ext {
+
+    sesameVersion = '2.7.8'
+
+
+
+    libraries = [
+            sesameRuntime         : "org.openrdf.sesame:sesame-runtime:$sesameVersion",
+    ]
+}

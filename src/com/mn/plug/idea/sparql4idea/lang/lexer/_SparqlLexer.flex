@@ -71,6 +71,8 @@ PN_LOCAL = ( {PN_CHARS_U} | [0-9] ) (({PN_CHARS}|".")* {PN_CHARS})?
   [bB][aA][sS][eE] { return KW_BASE; }
   [pP][rR][eE][fF][iI][xX] { return KW_PREFIX; }
   [sS][eE][lL][eE][cC][tT] { return KW_SELECT; }
+  [iI][nN][sS][eE][rR][tT] { return KW_INSERT; }
+  [dD][eE][lL][eE][tT][eE] { return KW_DELETE; }
   [cC][oO][nN][sS][tT][rR][uU][cC][tT] { return KW_CONSTRUCT; }
   [dD][eE][sS][cC][rR][iI][bB][eE] { return KW_DESCRIBE; }
   [aA][sS][kK] { return KW_ASK; }
