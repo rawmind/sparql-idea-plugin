@@ -73,6 +73,9 @@
     <lang.findUsagesProvider language="SPARQL"
                              implementationClass="com.mn.plug.idea.sparql4idea.lang.findUsages.SparqlFindUsagesProvider" />
 
+    <virtualFileSystem key="dbDummy" implementationClass="com.intellij.persistence.database.vfs.DatabaseVirtualFileSystem"/>
+    <fileEditorProvider implementation="com.mn.plug.idea.sparql4idea.editor.SparqlFileEditorProvider"/>
+
     <fileTemplateGroup implementation="com.mn.plug.idea.sparql4idea.actions.SparqlFileTemplatesFactory" />
 
     <!--<annotator language="SPARQL"

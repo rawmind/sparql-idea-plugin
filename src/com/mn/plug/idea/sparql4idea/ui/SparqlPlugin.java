@@ -2,6 +2,8 @@ package com.mn.plug.idea.sparql4idea.ui;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.*;
+import com.intellij.openapi.editor.actionSystem.EditorActionManager;
+import com.intellij.openapi.editor.actionSystem.TypedAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
@@ -9,6 +11,7 @@ import com.intellij.openapi.wm.ToolWindowContentUiType;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
+import com.mn.plug.idea.sparql4idea.SparqlPluginTypedActionHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,6 +49,8 @@ public class SparqlPlugin implements ProjectComponent, PersistentStateComponent<
 
       }
     }, true);
+    TypedAction typedAction = EditorActionManager.getInstance().getTypedAction();
+    typedAction.setupHandler(new SparqlPluginTypedActionHandler(typedAction.getHandler()));
     toolWindow.setDefaultContentUiType(ToolWindowContentUiType.TABBED);
     ContentManager contentManager = toolWindow.getContentManager();
     Content toolContent = contentManager.getFactory().createContent(mainWindow.getMainPanel(), SPARQL_TOOL_WINDOW, false);
