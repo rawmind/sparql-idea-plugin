@@ -2,13 +2,13 @@ package com.mn.plug.idea.sparql4idea.ui;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.mn.plug.idea.sparql4idea.core.DbLink;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
 import java.net.URI;
 
 /**
@@ -16,47 +16,48 @@ import java.net.URI;
  */
 public class OptionDialog extends DialogWrapper {
 
-  JBPanel panel;
-  JButton ok;
-  JButton cancel;
+  private final JBPanel panel;
   private final JTextField name;
   private final JTextField uri;
   private final MainPanel parent;
+  private final ActionType actionType;
 
-  protected OptionDialog(@Nullable Project project, final MainPanel parent) {
+  protected OptionDialog(@Nullable Project project, final MainPanel parent, ActionType actionType) {
     super(project);
     this.parent = parent;
-    setTitle("Add Host");
-    this.setSize(500, 100);
-    panel = new JBPanel();
-    ok = new JButton();
-    ok.setText("OK");
-    cancel = new JButton();
-    cancel.setText("Cancel");
-    panel.add(ok);
-    panel.add(cancel);
+    this.actionType = actionType;
+    setTitle(actionType.getTitle());
+    super.setSize(500, 100);
+    panel = new JBPanel(new GridBagLayout());
     name = new JTextField();
-    name.setText("local");
     uri = new JTextField();
-    uri.setText("http://127.1:8080/openrdf-sesame/repositories/entitystore");
-    panel.add(name);
-    panel.add(uri);
-
-    cancel.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        // todo: not thread safe (this) !!!!
-        close();
-      }
-    });
-
-    ok.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        parent.dblinkModel.addElement(new DbLink(URI.create(uri.getText()), name.getText()));
-        close();
-      }
-    });
+    if (actionType == ActionType.MODIFY || actionType == ActionType.DELETE) {
+      DbLink selectedItem = (DbLink) parent.dblinkModel.getSelectedItem();
+      name.setText(selectedItem.name);
+      uri.setText(selectedItem.uri.toString());
+    }
+    name.setEnabled(actionType.modifyAccepted);
+    uri.setEnabled(actionType.modifyAccepted);
+    GridBagConstraints c = new GridBagConstraints();
+    c.fill = GridBagConstraints.BOTH;
+    c.anchor = GridBagConstraints.WEST;
+    c.gridwidth = 1;
+    c.gridheight = 1;
+    c.weightx = 0.3;
+    c.gridx = 0;
+    c.gridy = 0;
+    JBLabel nameLabel = new JBLabel("Name:");
+    panel.add(nameLabel, c);
+    c.gridy = 0;
+    c.gridx = 1;
+    panel.add(name, c);
+    c.gridy = 1;
+    c.gridx = 0;
+    JBLabel uriLabel = new JBLabel("URI:");
+    panel.add(uriLabel, c);
+    c.gridy = 1;
+    c.gridx = 1;
+    panel.add(uri, c);
     init();
   }
 
@@ -66,8 +67,40 @@ public class OptionDialog extends DialogWrapper {
     return panel;
   }
 
-  private void close() {
-    this.close(0);
+  @Override
+  protected void doOKAction() {
+    DbLink anObject = new DbLink(URI.create(uri.getText()), name.getText());
+    switch (actionType) {
+      case ADD:
+        parent.dblinkModel.addElement(anObject);
+        parent.dblinkModel.setSelectedItem(anObject);
+        break;
+      case MODIFY:
+        parent.dblinkModel.removeElement(parent.dblinkModel.getSelectedItem());
+        parent.dblinkModel.addElement(anObject);
+        parent.dblinkModel.setSelectedItem(anObject);
+        break;
+      case DELETE:
+        parent.dblinkModel.removeElement(parent.dblinkModel.getSelectedItem());
+        break;
+    }
+    super.doOKAction();
+  }
+
+  public enum ActionType {
+    MODIFY("Edit host", true), DELETE("Remove host", false), ADD("Add new host", true);
+
+    String title;
+    boolean modifyAccepted;
+
+    ActionType(String title, boolean modifyAccepted) {
+      this.title = title;
+      this.modifyAccepted = modifyAccepted;
+    }
+
+    public String getTitle() {
+      return title;
+    }
   }
 
 }

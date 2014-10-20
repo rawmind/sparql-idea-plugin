@@ -1,7 +1,12 @@
 package com.mn.plug.idea.sparql4idea.vfs;
 
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileSystem;
+import com.intellij.openapi.vfs.ex.temp.TempFileSystem;
+import com.intellij.openapi.vfs.newvfs.NewVirtualFile;
+import com.intellij.openapi.vfs.newvfs.NewVirtualFileSystem;
+import com.mn.plug.idea.sparql4idea.SparqlFileType;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,24 +17,26 @@ import java.io.OutputStream;
 /**
  * @author Andrey Kovrov
  */
-public class SparqlVirtualFile extends VirtualFile {
+public class SparqlConsole extends VirtualFile {
 
-  @NotNull
-  @Override
-  public String getName() {
-    return "";
+  public SparqlConsole() {
   }
 
   @NotNull
   @Override
-  public VirtualFileSystem getFileSystem() {
-    return null;
+  public String getName() {
+    return "Sparql Console";
+  }
+
+  @Override
+  public NewVirtualFileSystem getFileSystem() {
+    return new TempFileSystem();
   }
 
   @NotNull
   @Override
   public String getPath() {
-    return null;
+    return "/tmp/console.1";
   }
 
   @Override
@@ -44,7 +51,7 @@ public class SparqlVirtualFile extends VirtualFile {
 
   @Override
   public boolean isValid() {
-    return false;
+    return true;
   }
 
   @Override
@@ -54,7 +61,13 @@ public class SparqlVirtualFile extends VirtualFile {
 
   @Override
   public VirtualFile[] getChildren() {
-    return new VirtualFile[0];
+    return EMPTY_ARRAY;
+  }
+
+  @Nullable
+  @Override
+  public NewVirtualFile findChild(@NotNull @NonNls String name) {
+    return null;
   }
 
   @NotNull
@@ -88,4 +101,22 @@ public class SparqlVirtualFile extends VirtualFile {
   public InputStream getInputStream() throws IOException {
     return null;
   }
+
+  @NotNull
+  @Override
+  public FileType getFileType() {
+    return SparqlFileType.SPARQL_FILE_TYPE;
+  }
+
+  @Override
+  public String toString() {
+    return "Sparql console emulator";
+  }
+
+  @Override
+  public long getModificationStamp() {
+    return 1l;
+  }
+
+
 }

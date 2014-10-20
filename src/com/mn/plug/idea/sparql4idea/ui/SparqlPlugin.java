@@ -11,14 +11,16 @@ import com.intellij.openapi.wm.ToolWindowContentUiType;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
-import com.mn.plug.idea.sparql4idea.SparqlPluginTypedActionHandler;
+import com.mn.plug.idea.sparql4idea.core.DbLink;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.URI;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-@State(name = "VimSettings", storages = {@Storage(id = "main", file = StoragePathMacros.WORKSPACE_FILE)})
+@State(name = "SparqlSettings", storages = {@Storage(id = "main", file = StoragePathMacros.WORKSPACE_FILE)})
 public class SparqlPlugin implements ProjectComponent, PersistentStateComponent<ConfigurationState> {
 
   public static final String COMPONENT_NAME = "Sparql Plugin";
@@ -31,6 +33,7 @@ public class SparqlPlugin implements ProjectComponent, PersistentStateComponent<
   public SparqlPlugin(Project project) {
     this.project = project;
     mainWindow = new MainPanel(project);
+    mainWindow.registerListeners();
   }
 
   @NotNull
@@ -50,21 +53,26 @@ public class SparqlPlugin implements ProjectComponent, PersistentStateComponent<
       }
     }, true);
     TypedAction typedAction = EditorActionManager.getInstance().getTypedAction();
-    typedAction.setupHandler(new SparqlPluginTypedActionHandler(typedAction.getHandler()));
+    //typedAction.setupHandler(new SparqlPluginTypedActionHandler(typedAction.getHandler()));
     toolWindow.setDefaultContentUiType(ToolWindowContentUiType.TABBED);
     ContentManager contentManager = toolWindow.getContentManager();
     Content toolContent = contentManager.getFactory().createContent(mainWindow.getMainPanel(), SPARQL_TOOL_WINDOW, false);
     contentManager.addContent(toolContent);
-    if(state != null && state.inputText !=null){
+    if (state != null && state.inputText != null) {
       mainWindow.queryEditor.setText(state.inputText);
+      for (Map.Entry<String, String> link : state.links.entrySet()) {
+        mainWindow.dblinkModel.addElement(new DbLink(URI.create(link.getKey()), link.getValue()));
+      }
     }
   }
 
   @Override
   public void projectClosed() {
     ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-    if (toolWindowManager.getToolWindow(SPARQL_TOOL_WINDOW) != null)
+    if (toolWindowManager.getToolWindow(SPARQL_TOOL_WINDOW) != null) {
       toolWindowManager.unregisterToolWindow(SPARQL_TOOL_WINDOW);
+    }
+    mainWindow.release();
   }
 
   @Override
@@ -74,7 +82,6 @@ public class SparqlPlugin implements ProjectComponent, PersistentStateComponent<
 
   @Override
   public void disposeComponent() {
-    mainWindow.release();
   }
 
   @Nullable
@@ -84,6 +91,10 @@ public class SparqlPlugin implements ProjectComponent, PersistentStateComponent<
     try {
       SparqlPlugin.state = new ConfigurationState();
       state.inputText = mainWindow.queryEditor.getText();
+      for (int i = 0; i < mainWindow.dblinkModel.getSize(); i++) {
+        DbLink elementAt = mainWindow.dblinkModel.getElementAt(i);
+        state.links.put(elementAt.uri.toString(), elementAt.name);
+      }
     } finally {
       lock.unlock();
     }

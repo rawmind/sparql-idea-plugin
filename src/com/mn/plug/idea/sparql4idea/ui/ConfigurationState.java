@@ -1,14 +1,12 @@
 package com.mn.plug.idea.sparql4idea.ui;
 
-import com.mn.plug.idea.sparql4idea.core.DbLink;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ConfigurationState {
 
   public String inputText;
 
-  public List<DbLink> links = new ArrayList<DbLink>();
+  public Map<String, String> links = new HashMap<String, String>();
 
 }

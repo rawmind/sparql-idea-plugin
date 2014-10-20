@@ -1,6 +1,6 @@
 package com.mn.plug.idea.sparql4idea.core;
 
-import org.openrdf.query.TupleQueryResult;
+import javax.swing.table.TableModel;
 
 /**
  * @author Andrey Kovrov
@@ -12,8 +12,8 @@ public class EmptyResult extends AbstractResult {
   }
 
   @Override
-  public TupleQueryResult getTupleQueryResult() {
-    return null;
+  public TableModel getTableDataModel() {
+    return EMPTY_MODEL;
   }
 
 }

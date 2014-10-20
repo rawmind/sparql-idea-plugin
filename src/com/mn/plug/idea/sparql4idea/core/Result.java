@@ -1,16 +1,18 @@
 package com.mn.plug.idea.sparql4idea.core;
 
-import org.openrdf.query.TupleQueryResult;
+import javax.swing.table.TableModel;
 
 /**
  * @author Andrey Kovrov
  */
 public interface Result {
 
-  TupleQueryResult getTupleQueryResult();
+  TableModel getTableDataModel();
 
   boolean hasError();
 
   String getErrorMessage();
+
+  String getMessage();
 
 }

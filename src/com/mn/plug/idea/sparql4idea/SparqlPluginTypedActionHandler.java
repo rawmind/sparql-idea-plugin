@@ -18,10 +18,16 @@
 
 package com.mn.plug.idea.sparql4idea;
 
+import com.intellij.codeInsight.generation.CommentByLineCommentHandler;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.TypedActionHandler;
+import com.intellij.openapi.vfs.ex.temp.TempFileSystem;
+import com.intellij.psi.PsiManager;
+import com.mn.plug.idea.sparql4idea.vfs.SparqlConsole;
 import org.jetbrains.annotations.NotNull;
 
 public class SparqlPluginTypedActionHandler implements TypedActionHandler {
@@ -37,6 +43,14 @@ public class SparqlPluginTypedActionHandler implements TypedActionHandler {
 
   @Override
   public void execute(@NotNull final Editor editor, final char charTyped, @NotNull final DataContext context) {
+    CommentByLineCommentHandler commentByLineCommentHandler = new CommentByLineCommentHandler();
+    PsiManager psiManager = PsiManager.getInstance(editor.getProject());
+    TempFileSystem component = ApplicationManager.getApplication().getComponent(TempFileSystem.class);
+    CommonDataKeys.VIRTUAL_FILE.getData(context);
+    //VirtualFile root = component.getRoot();
+    SparqlConsole sparqlConsole = new SparqlConsole();
+//
+
     origHandler.execute(editor, charTyped, context);
   }
 

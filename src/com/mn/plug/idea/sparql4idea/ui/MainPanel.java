@@ -4,6 +4,9 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.impl.DocumentImpl;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
@@ -16,31 +19,18 @@ import com.mn.plug.idea.sparql4idea.SparqlFileType;
 import com.mn.plug.idea.sparql4idea.core.DbLink;
 import com.mn.plug.idea.sparql4idea.core.Result;
 import com.mn.plug.idea.sparql4idea.core.SparqlClient;
-import com.mn.plug.idea.sparql4idea.lang.NameSpaces;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.TupleQueryResult;
+import com.mn.plug.idea.sparql4idea.vfs.SparqlConsole;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Vector;
 
 /**
  * @author Andrey Kovrov
  */
 public class MainPanel {
 
-  public static final String INIT_SELECT =
-          "PREFIX w-m:<http://model.wiley.com/ontologies/EntityStore.owl#>\n" +
-                  "PREFIX w-o:<http://entities.wiley.com/objects/>\n" +
-                  "SELECT * \n" +
-                  "WHERE {\n" +
-                  "?o ?s ?p\n" +
-                  "}\n" +
-                  "limit 100";
   private static final String BLANK = "";
   public static final int MAX_RIGHT_GRID_POSITION = 5;
   public static final int MIX_LEFT_GRID_X_POSITION = 0;
@@ -48,28 +38,25 @@ public class MainPanel {
   private final JButton executeButton;
   private final JButton addRepo;
   private final JButton delRepo;
-  private final JButton confRepo;
+  private final JButton editRepo;
   private final JBPanel optionPanel;
   protected final DefaultComboBoxModel<DbLink> dblinkModel;
   private final ComboBox repos;
-  private final JTextField addressString;
   private final JBCheckBox updateRequest;
-
-  private final JLabel errorLabel;
+  private final Project project;
+  private final JLabel messageLabel;
   protected final EditorTextField queryEditor;
   private final JBTable resultTable;
-  private final NameSpaces normalizer = new NameSpaces();
+  private final Document document = new DocumentImpl("");
 
   public MainPanel(final Project project) {
+    this.project = project;
     resultTable = new JBTable();
-    errorLabel = new JLabel();
+    messageLabel = new JLabel();
     mainPanel = new SimpleToolWindowPanel(false);
     executeButton = new JButton("Run");
     executeButton.setIcon(AllIcons.General.Run);
-    executeButton.setMaximumSize(new Dimension(20, 20));
-    addressString = new JTextField();
-    Document document = EditorFactory.getInstance().createDocument(INIT_SELECT);
-    queryEditor = new EditorTextField(document, project, SparqlFileType.SPARQL_FILE_TYPE);
+    queryEditor =new EditorTextField(document, project, SparqlFileType.SPARQL_FILE_TYPE);
     queryEditor.setOneLineMode(false);
     updateRequest = new JBCheckBox("Update", false);
     addRepo = new JButton();
@@ -78,84 +65,67 @@ public class MainPanel {
     delRepo.setIcon(AllIcons.General.Remove);
     dblinkModel = new DefaultComboBoxModel<DbLink>();
     repos = new ComboBox(dblinkModel);
-    dblinkModel.addElement(SparqlClient.DEFAULT_REPOSITORIES.get(0));
     optionPanel = new JBPanel();
-    confRepo = new JButton();
-    confRepo.setIcon(AllIcons.General.Settings);
+    editRepo = new JButton();
+    editRepo.setIcon(AllIcons.General.Settings);
+    resultTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+    resultTable.setColumnSelectionAllowed(true);
+    resultTable.setRowSelectionAllowed(true);
     //
-    configureLayout();
-    ActionListener l = registerListeners();
-    executeButton.addActionListener(l);
-    final MainPanel p  = this;  //TODO: !!!!!
+    mainPanelLayout();
+  }
+
+  public void registerListeners() {
+    final MainPanel p = this;
     addRepo.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        //TODO: !!!!!
-        OptionDialog optionDialog = new OptionDialog(project,  p);
+        OptionDialog optionDialog = new OptionDialog(project, p, OptionDialog.ActionType.ADD);
         optionDialog.show();
       }
     });
-  }
-
-  private ActionListener registerListeners() {
-    return new ActionListener() {
+    editRepo.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        OptionDialog optionDialog = new OptionDialog(project, p, OptionDialog.ActionType.MODIFY);
+        optionDialog.show();
+      }
+    });
+    delRepo.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        OptionDialog optionDialog = new OptionDialog(project, p, OptionDialog.ActionType.DELETE);
+        optionDialog.show();
+      }
+    });
+    executeButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         executeQuery(updateRequest.isSelected());
       }
-    };
+    });
   }
 
   // todo: remove from EDT
   private void executeQuery(boolean isUpdate) {
     DbLink selectedItem = (DbLink) dblinkModel.getSelectedItem();
-      SparqlClient client = new SparqlClient(selectedItem.uri.toString());
-    errorLabel.setText(BLANK);
+    SparqlClient client = new SparqlClient(selectedItem.uri.toString());
+    messageLabel.setText(BLANK);
     if (isUpdate) {
       Result result = client.writeQuery(queryEditor.getText());
-      if (result.hasError()) {
-        errorLabel.setText(result.getErrorMessage());
-      }
-    }
-    DefaultTableModel dm = new DefaultTableModel();
-    Result result = client.readQuery(queryEditor.getText());
-    if (result.hasError()) {
-      errorLabel.setText(result.getErrorMessage());
+      messageLabel.setText(result.hasError() ? result.getErrorMessage() : result.getMessage());
       return;
     }
-    TupleQueryResult tupleQueryResult = result.getTupleQueryResult();
-    try {
-      for (String binding : tupleQueryResult.getBindingNames()) {
-        dm.addColumn(binding);
-      }
-      while (tupleQueryResult.hasNext()) {
-        Vector<String> vector = new Vector<String>();
-        BindingSet row = tupleQueryResult.next();
-        for (String binding : tupleQueryResult.getBindingNames()) {
-          String e = row.getValue(binding).stringValue();
-          vector.add(normalizer.normalize(e));
-        }
-        dm.addRow(vector);
-      }
-    } catch (QueryEvaluationException e) {
-      errorLabel.setText(e.getMessage());
-    } finally {
-      try {
-        tupleQueryResult.close();
-      } catch (QueryEvaluationException e) {
-        // skip
-      }
-    }
-    resultTable.setModel(dm);
-    resultTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+    Result result = client.readQuery(queryEditor.getText());
+    resultTable.setModel(result.getTableDataModel());
+    messageLabel.setText(result.hasError() ? result.getErrorMessage() : result.getMessage());
   }
 
-  private void configureLayout() {
+  private void mainPanelLayout() {
     JBScrollPane jbScrollPane = new JBScrollPane(resultTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-    GridBagLayout gridLayout = new GridBagLayout();
     GridBagConstraints c = new GridBagConstraints();
     optionPanelLayout();
-    mainPanel.setLayout(gridLayout);
+    mainPanel.setLayout(new GridBagLayout());
     c.fill = GridBagConstraints.NONE;
     c.anchor = GridBagConstraints.WEST;
     c.gridwidth = 1;
@@ -177,17 +147,16 @@ public class MainPanel {
     c.gridheight = 2;
     mainPanel.add(jbScrollPane, c);
     c.fill = GridBagConstraints.BOTH;
-    c.weightx = 1;
+    c.weightx = 0.3;
     c.gridwidth = 1;
     c.gridheight = 1;
     c.gridx = MIX_LEFT_GRID_X_POSITION;
     c.gridy = 5;
-    mainPanel.add(errorLabel, c);
+    mainPanel.add(messageLabel, c);
   }
 
   private void optionPanelLayout() {
-    GridBagLayout gridLayout = new GridBagLayout();
-    optionPanel.setLayout(gridLayout);
+    optionPanel.setLayout(new GridBagLayout());
     GridBagConstraints c = new GridBagConstraints();
     c.fill = GridBagConstraints.NONE;
     c.anchor = GridBagConstraints.WEST;
@@ -197,7 +166,7 @@ public class MainPanel {
     optionPanel.add(repos, c);
     optionPanel.add(addRepo, c);
     optionPanel.add(delRepo, c);
-    optionPanel.add(confRepo, c);
+    optionPanel.add(editRepo, c);
     c.anchor = GridBagConstraints.EAST;
     optionPanel.add(updateRequest, c);
     optionPanel.add(executeButton, c);
@@ -208,10 +177,13 @@ public class MainPanel {
   }
 
   public void release() {
-    Editor editor = queryEditor.getEditor();
-    if (editor != null) {
+    for (Editor editor : EditorFactory.getInstance().getEditors(document)) {
       EditorFactory.getInstance().releaseEditor(editor);
     }
+  }
+
+  private void createConsole(){
+    FileEditor[] fileEditors = FileEditorManager.getInstance(project).openFile(new SparqlConsole(), true);
   }
 
 }
