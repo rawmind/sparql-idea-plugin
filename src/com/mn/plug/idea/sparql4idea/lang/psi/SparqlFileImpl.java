@@ -2,11 +2,11 @@ package com.mn.plug.idea.sparql4idea.lang.psi;
 
 import com.intellij.extapi.psi.PsiFileBase;
 import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.psi.*;
+import com.intellij.psi.FileViewProvider;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.ResolveState;
 import com.intellij.psi.scope.PsiScopeProcessor;
-import com.intellij.psi.search.PsiElementProcessor;
 import com.mn.plug.idea.sparql4idea.SparqlFileType;
-import com.mn.plug.idea.sparql4idea.lang.parser.SparqlElementTypes;
 import com.mn.plug.idea.sparql4idea.lang.psi.toplevel.PrefixDeclaration;
 import com.mn.plug.idea.sparql4idea.lang.psi.toplevel.PrefixDeclarations;
 import org.jetbrains.annotations.NotNull;

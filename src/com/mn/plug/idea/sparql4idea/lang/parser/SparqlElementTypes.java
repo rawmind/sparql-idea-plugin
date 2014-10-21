@@ -45,4 +45,8 @@ public interface SparqlElementTypes {
   IElementType VAR_DECLARATION = new SparqlElementType("VAR_DECLARATION");
   IElementType VAR_REFERENCE = new SparqlElementType("VAR_REFERENCE");
   IElementType GRAPH_NODE = new SparqlElementType("GRAPH_NODE");
+  // SPARQL 1.1
+  IElementType INSERT_QUERY = new SparqlElementType("INSERT_QUERY");
+  IElementType DELETE_QUERY = new SparqlElementType("DELETE_QUERY");
+
 }

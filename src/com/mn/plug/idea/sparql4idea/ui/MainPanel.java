@@ -1,25 +1,25 @@
 package com.mn.plug.idea.sparql4idea.ui;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.impl.DocumentImpl;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.ui.EditorTextField;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
-import com.mn.plug.idea.sparql4idea.SparqlFileType;
 import com.mn.plug.idea.sparql4idea.core.DbLink;
 import com.mn.plug.idea.sparql4idea.core.Result;
 import com.mn.plug.idea.sparql4idea.core.SparqlClient;
 import com.mn.plug.idea.sparql4idea.vfs.SparqlConsole;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,11 +32,10 @@ import java.awt.event.ActionListener;
 public class MainPanel {
 
   private static final String BLANK = "";
-  public static final int MAX_RIGHT_GRID_POSITION = 5;
-  public static final int MIX_LEFT_GRID_X_POSITION = 0;
   private final SimpleToolWindowPanel mainPanel;
   private final JButton executeButton;
   private final JButton addRepo;
+  private final JButton openConsole;
   private final JButton delRepo;
   private final JButton editRepo;
   private final JBPanel optionPanel;
@@ -45,9 +44,10 @@ public class MainPanel {
   private final JBCheckBox updateRequest;
   private final Project project;
   private final JLabel messageLabel;
-  protected final EditorTextField queryEditor;
   private final JBTable resultTable;
-  private final Document document = new DocumentImpl("");
+  private Document document;
+  private final SparqlConsole console = new SparqlConsole();
+  public volatile String text = "";
 
   public MainPanel(final Project project) {
     this.project = project;
@@ -55,10 +55,10 @@ public class MainPanel {
     messageLabel = new JLabel();
     mainPanel = new SimpleToolWindowPanel(false);
     executeButton = new JButton("Run");
+    executeButton.setEnabled(false);
     executeButton.setIcon(AllIcons.General.Run);
-    queryEditor =new EditorTextField(document, project, SparqlFileType.SPARQL_FILE_TYPE);
-    queryEditor.setOneLineMode(false);
     updateRequest = new JBCheckBox("Update", false);
+    openConsole = new JButton("Console");
     addRepo = new JButton();
     addRepo.setIcon(AllIcons.General.Add);
     delRepo = new JButton();
@@ -101,22 +101,29 @@ public class MainPanel {
     executeButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        executeQuery(updateRequest.isSelected());
+        executeQuery(updateRequest.isSelected(), document.getText());
+      }
+    });
+    openConsole.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        createConsole();
+        executeButton.setEnabled(true);
       }
     });
   }
 
   // todo: remove from EDT
-  private void executeQuery(boolean isUpdate) {
+  private void executeQuery(boolean isUpdate, String text) {
     DbLink selectedItem = (DbLink) dblinkModel.getSelectedItem();
     SparqlClient client = new SparqlClient(selectedItem.uri.toString());
     messageLabel.setText(BLANK);
     if (isUpdate) {
-      Result result = client.writeQuery(queryEditor.getText());
+      Result result = client.writeQuery(text);
       messageLabel.setText(result.hasError() ? result.getErrorMessage() : result.getMessage());
       return;
     }
-    Result result = client.readQuery(queryEditor.getText());
+    Result result = client.readQuery(text);
     resultTable.setModel(result.getTableDataModel());
     messageLabel.setText(result.hasError() ? result.getErrorMessage() : result.getMessage());
   }
@@ -126,32 +133,17 @@ public class MainPanel {
     GridBagConstraints c = new GridBagConstraints();
     optionPanelLayout();
     mainPanel.setLayout(new GridBagLayout());
+    c.gridy = GridBagConstraints.RELATIVE;
     c.fill = GridBagConstraints.NONE;
     c.anchor = GridBagConstraints.WEST;
-    c.gridwidth = 1;
-    c.gridheight = 1;
     c.gridx = 0;
-    c.weightx = 0.3;
-    c.gridy = 0;
+    c.weightx = 1;
     mainPanel.add(optionPanel, c);
-    c.fill = GridBagConstraints.BOTH;
-    c.weightx = 0.3;
     c.weighty = 1;
-    c.gridy = 1;
-    mainPanel.add(queryEditor, c);
     c.fill = GridBagConstraints.BOTH;
-    c.gridx = MAX_RIGHT_GRID_POSITION;
-    c.weightx = 1.7;
-    c.gridy = 0;
-    c.gridwidth = 1;
-    c.gridheight = 2;
     mainPanel.add(jbScrollPane, c);
-    c.fill = GridBagConstraints.BOTH;
-    c.weightx = 0.3;
-    c.gridwidth = 1;
-    c.gridheight = 1;
-    c.gridx = MIX_LEFT_GRID_X_POSITION;
-    c.gridy = 5;
+   // c.gridheight = 1;
+    c.weighty = 0.1;
     mainPanel.add(messageLabel, c);
   }
 
@@ -160,14 +152,13 @@ public class MainPanel {
     GridBagConstraints c = new GridBagConstraints();
     c.fill = GridBagConstraints.NONE;
     c.anchor = GridBagConstraints.WEST;
-    c.gridwidth = 1;
-    c.gridheight = 1;
     c.gridx = GridBagConstraints.RELATIVE;
     optionPanel.add(repos, c);
     optionPanel.add(addRepo, c);
     optionPanel.add(delRepo, c);
     optionPanel.add(editRepo, c);
     c.anchor = GridBagConstraints.EAST;
+    optionPanel.add(openConsole, c);
     optionPanel.add(updateRequest, c);
     optionPanel.add(executeButton, c);
   }
@@ -176,14 +167,30 @@ public class MainPanel {
     return mainPanel;
   }
 
-  public void release() {
-    for (Editor editor : EditorFactory.getInstance().getEditors(document)) {
-      EditorFactory.getInstance().releaseEditor(editor);
+
+  public String getText(){
+    if(document!= null){
+      text = document.getText();
+    }
+    return StringUtils.defaultString(text);
+  }
+
+  private void createConsole() {
+    FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+    if (!fileEditorManager.isFileOpen(console)) {
+      FileEditor[] fileEditors = fileEditorManager.openFile(console, true);
+      Document[] documents = TextEditorProvider.getDocuments(fileEditors[0]);
+      if (ArrayUtils.isEmpty(documents)) {
+        throw new IllegalStateException("No documents found!");
+      }
+      document = documents[0];
+      Application application = ApplicationManager.getApplication();
+      application.runWriteAction(new Runnable() {
+        @Override
+        public void run() {
+          document.setText(text);
+        }
+      });
     }
   }
-
-  private void createConsole(){
-    FileEditor[] fileEditors = FileEditorManager.getInstance(project).openFile(new SparqlConsole(), true);
-  }
-
 }

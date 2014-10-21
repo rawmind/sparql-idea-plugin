@@ -1,6 +1,7 @@
 package com.mn.plug.idea.sparql4idea.vfs;
 
 import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.vfs.NonPhysicalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.ex.temp.TempFileSystem;
 import com.intellij.openapi.vfs.newvfs.NewVirtualFile;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,10 +19,9 @@ import java.io.OutputStream;
 /**
  * @author Andrey Kovrov
  */
-public class SparqlConsole extends VirtualFile {
+public class SparqlConsole extends VirtualFile implements NonPhysicalFileSystem {
 
-  public SparqlConsole() {
-  }
+  public static final FakeFileSystem FAKE_FILE_SYSTEM = new FakeFileSystem();
 
   @NotNull
   @Override
@@ -30,7 +31,7 @@ public class SparqlConsole extends VirtualFile {
 
   @Override
   public NewVirtualFileSystem getFileSystem() {
-    return new TempFileSystem();
+    return FAKE_FILE_SYSTEM;
   }
 
   @NotNull
@@ -41,7 +42,7 @@ public class SparqlConsole extends VirtualFile {
 
   @Override
   public boolean isWritable() {
-    return false;
+    return true;
   }
 
   @Override
@@ -73,7 +74,7 @@ public class SparqlConsole extends VirtualFile {
   @NotNull
   @Override
   public OutputStream getOutputStream(Object requestor, long newModificationStamp, long newTimeStamp) throws IOException {
-    return null;
+    return new ByteArrayOutputStream();
   }
 
   @NotNull
@@ -118,5 +119,12 @@ public class SparqlConsole extends VirtualFile {
     return 1l;
   }
 
+  @Nullable
+  @Override
+  public String getExtension() {
+    return "sparql";
+  }
+
+  private static class FakeFileSystem extends TempFileSystem implements NonPhysicalFileSystem{}
 
 }

@@ -12,6 +12,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import com.mn.plug.idea.sparql4idea.core.DbLink;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,10 +57,10 @@ public class SparqlPlugin implements ProjectComponent, PersistentStateComponent<
     //typedAction.setupHandler(new SparqlPluginTypedActionHandler(typedAction.getHandler()));
     toolWindow.setDefaultContentUiType(ToolWindowContentUiType.TABBED);
     ContentManager contentManager = toolWindow.getContentManager();
-    Content toolContent = contentManager.getFactory().createContent(mainWindow.getMainPanel(), SPARQL_TOOL_WINDOW, false);
+    Content toolContent = contentManager.getFactory().createContent(mainWindow.getMainPanel(), "", false);
     contentManager.addContent(toolContent);
-    if (state != null && state.inputText != null) {
-      mainWindow.queryEditor.setText(state.inputText);
+    if (state != null) {
+      mainWindow.text = returnIfNotBlank(mainWindow.text, state.inputText);
       for (Map.Entry<String, String> link : state.links.entrySet()) {
         mainWindow.dblinkModel.addElement(new DbLink(URI.create(link.getKey()), link.getValue()));
       }
@@ -72,7 +73,6 @@ public class SparqlPlugin implements ProjectComponent, PersistentStateComponent<
     if (toolWindowManager.getToolWindow(SPARQL_TOOL_WINDOW) != null) {
       toolWindowManager.unregisterToolWindow(SPARQL_TOOL_WINDOW);
     }
-    mainWindow.release();
   }
 
   @Override
@@ -90,7 +90,7 @@ public class SparqlPlugin implements ProjectComponent, PersistentStateComponent<
     lock.lock();
     try {
       SparqlPlugin.state = new ConfigurationState();
-      state.inputText = mainWindow.queryEditor.getText();
+      state.inputText = returnIfNotBlank(state.inputText, mainWindow.getText());
       for (int i = 0; i < mainWindow.dblinkModel.getSize(); i++) {
         DbLink elementAt = mainWindow.dblinkModel.getElementAt(i);
         state.links.put(elementAt.uri.toString(), elementAt.name);
@@ -111,4 +111,12 @@ public class SparqlPlugin implements ProjectComponent, PersistentStateComponent<
       lock.unlock();
     }
   }
+
+  public String returnIfNotBlank(String to, String what) {
+    if (StringUtils.isNotBlank(what)) {
+      to = what;
+    }
+    return to;
+  }
+
 }
