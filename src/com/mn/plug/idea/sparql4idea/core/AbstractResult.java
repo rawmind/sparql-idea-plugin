@@ -10,7 +10,7 @@ public abstract class AbstractResult implements Result {
 
   private String errorMessage;
   private boolean errorOccurred;
-  private long requestTime;
+  private long queryTime;
 
   protected static final TableModel EMPTY_MODEL = new DefaultTableModel();
 
@@ -19,8 +19,8 @@ public abstract class AbstractResult implements Result {
     errorOccurred = true;
   }
 
-  protected AbstractResult(long requestTime) {
-    this.requestTime = requestTime;
+  protected AbstractResult(long queryTime) {
+    this.queryTime = queryTime;
   }
 
   public void setErrorMessage(String errorMessage) {
@@ -40,7 +40,7 @@ public abstract class AbstractResult implements Result {
 
   @Override
   public String getMessage() {
-    return String.format("Request time: %d", requestTime);
+    return String.format("Query time: %d ms", queryTime);
   }
 
 }
