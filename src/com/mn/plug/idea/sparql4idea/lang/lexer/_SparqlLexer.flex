@@ -71,8 +71,6 @@ PN_LOCAL = ( {PN_CHARS_U} | [0-9] ) (({PN_CHARS}|".")* {PN_CHARS})?
   [bB][aA][sS][eE] { return KW_BASE; }
   [pP][rR][eE][fF][iI][xX] { return KW_PREFIX; }
   [sS][eE][lL][eE][cC][tT] { return KW_SELECT; }
-  [iI][nN][sS][eE][rR][tT] { return KW_INSERT; }
-  [dD][eE][lL][eE][tT][eE] { return KW_DELETE; }
   [cC][oO][nN][sS][tT][rR][uU][cC][tT] { return KW_CONSTRUCT; }
   [dD][eE][sS][cC][rR][iI][bB][eE] { return KW_DESCRIBE; }
   [aA][sS][kK] { return KW_ASK; }
@@ -92,20 +90,91 @@ PN_LOCAL = ( {PN_CHARS_U} | [0-9] ) (({PN_CHARS}|".")* {PN_CHARS})?
   [uU][nN][iI][oO][nN] { return KW_UNION; }
   [fF][iI][lL][tT][eE][rR] { return KW_FILTER; }
   "a" { return KW_A; }
-  [sS][tT][rR] { return KW_STR; }
-  [lL][aA][nN][gG] { return KW_LANG; }
-  [lL][aA][nN][gG][mM][sA][tT][cC][hH][eE][sS] { return KW_LANGMATCHES; }
   [dD][aA][tT][aA][tT][yY][pP][eE] { return KW_DATATYPE; }
-  [bB][oO][uU][nN][dD] { return KW_BOUND; }
   [sS][aA][mM][eE][tT][eE][rR][mM] { return KW_SAME_TERM; }
   [iI][sS][uU][rR][iI] { return KW_IS_URI; }
   [iI][sS][iI][rR][iI] { return KW_IS_IRI; }
   [iI][sS][bB][lL][aA][nN][kK] { return KW_IS_BLANK; }
   [iI][sS][lL][iI][tT][eE][rR][aA][lL] { return KW_IS_LITERAL; }
-  [rR][eE][gG][eE][xX] { return KW_REGEX; }
 
   [tT][rR][uU][eE] { return LIT_TRUE; }
   [fF][aA][lL][sS][eE] { return LIT_FALSE; }
+
+  //sparql 1.1
+  [iI][nN][sS][eE][rR][tT] { return KW_INSERT; }
+  [dD][eE][lL][eE][tT][eE] { return KW_DELETE; }
+  [dD][aA][tT][aA] {return KW_DATA;}
+  [dD][rR][oO][pP] {return KW_DROP;}
+  [sS][iI][lL][eE][nN][tT] {return KW_SILENT;}
+  [dD][eE][fF][aA][uU][lL][tT] {return KW_DEFAULT;}
+  [aA][lL][lL] {return KW_ALL;}
+  [cC][rR][eE][aA][tT][eE] {return KW_CREATE;}
+  [cC][lL][eE][aA][rR] {return KW_CLEAR;}
+  [lL][oO][aA][dD] {return KW_LOAD;}
+  [mM][oO][vV][eE] {return KW_MOVE;}
+  [aA][dD][dD] {return KW_ADD;}
+  [wW][iI][tT][hH] {return KW_WITH;}
+  [uU][sS][iI][nN][gG] {return KW_USING;}
+  [cC][oO][pP][yY] {return KW_COPY;}
+  [eE][xX][iI][sS][tT][sS] {return KW_EXISTS;}
+  [nN][oO][tT] {return KW_NOT;}
+  [mM][iI][nN][uU][sS] {return KW_MINUS;}
+  [hH][aA][vV][iI][nN][gG] {return KW_HAVING;}
+  [gG][rR][oO][uU][pP] {return KW_GROUP;}
+  [bB][iI][nN][dD] {return KW_BIND;}
+  [sS][eE][rR][vV][iI][cC][eE] {return KW_SERVICE;}
+  [vV][aA][lL][uU][eE][sS] {return KW_VALUES;}
+	 // Functions on numerics
+	[aA][bB][sS] {return KW_ABS;}
+	[rR][oO][uU][nN][dD] {return KW_ROUND;}
+	[cC][eE][iI][lL] {return KW_CEIL;}
+	[fF][lL][oO][rR] {return KW_FLOOR;}
+	[rR][aA][nN][dD] {return KW_RAND;}
+	 // Functions on strings
+  [sS][tT][rR][lL][eE][nN] {return KW_STRLEN;}
+  [sS][uU][bB][sS][tT][rR] {return KW_SUBSTR;}
+  [uU][cC][aA][sS][eE] {return KW_UCASE;}
+  [lL][cC][aA][sS][eE] {return KW_LCASE;}
+  [sS][tT][rR][sS][tT][aA][rR][tT][sS] {return KW_STRSTARTS;}
+  [sS][tT][rR][eE][nN][dD][sS] {return KW_STRENDS;}
+  [cC][oO][nN][tT][aA][iI][nN][sS] {return KW_CONTAINS;}
+  [sS][tT][rR][bB][eE][fF][oO][rR][eE] {return KW_STRBEFORE;}
+  [sS][tT][rR][aA][fF][tT][eE][rR] {return KW_STRAFTER;}
+  [eE][nN][cC][oO][dD][eE][_][fF][oO][rR][_][uU][rR][iI] {return KW_ENCODE_FOR_URI;}
+  [cC][oO][nN][cC][ca][tT] {return KW_CONCAT;}
+  [lL][aA][nN][gG][mM][sA][tT][cC][hH][eE][sS] { return KW_LANGMATCHES; }
+  [rR][eE][gG][eE][xX] { return KW_REGEX; }
+  [rR][eE][pP][lL][aA][cC][eE] {return KW_REPLACE;}
+//  Functions on dates and times
+	[nN][oO][wW] {return KW_NOW;}
+	[yY][eE][aA][rR] {return KW_YEAR;}
+	[mM][oO][nN][tT][hH] {return KW_MONTH;}
+	[dD][aA][yY] {return KW_DAY;}
+	[hH][oO][uU][rR][sS] {return KW_HOURS;}
+	[mM][iI][nN][uU][tT][eE][sS] {return KW_MINUTES;}
+	[sS][eE][cC][oO][nN][dD][sS] {return KW_SECONDS;}
+	[tT][iI][mM][eE][zZ][oO][nN][eE] {return KW_TIMEZONE;}
+	[tT][zZ] {return KW_TZ;}
+// Functional forms
+  [bB][oO][uU][nN][dD] { return KW_BOUND; }
+  [iI][fF] {return KW_IF;}
+  [iI][fN] {return KW_IN;}
+  [cC][oO][aA][lL][eE][sS][cC][eE] {return KW_COALESCE;}
+// Hash functions
+	[mM][dD][5] { return KW_MD5;}
+	[sS][hH][aA][1] {return KW_SHA1;}
+	[sS][hH][aA][2][5][6] {return KW_SHA256;}
+	[sS][hH][aA][3][8][4] {return KW_SHA384;}
+	[sS][hH][aA][5][1][2] {return KW_SHA512;}
+// Functions on RDF terms
+	[sS][tT][rR] { return KW_STR; }
+  [lL][aA][nN][gG] { return KW_LANG; }
+  [iI][sS][nN][uU][mM][eE][rR][iI][cC] {return KW_IS_NUMERIC;}
+	[bB][nN][oO][dD][eE] {return KW_BNODE;}
+	[sS][tT][rR][dD][tT] {return KW_STRDT;}
+	[sS][tT][rR][lL][aA][nN][gG] {return KW_STRLANG;}
+	[uU][uU][iI][dD] {return KW_UUID;}
+	[sS][tT][rR][uU][uU][iI][dD] {return KW_STRUUID;}
 
   {INTEGER} { return LIT_INTEGER; }
   {DECIMAL} { return LIT_DECIMAL; }
