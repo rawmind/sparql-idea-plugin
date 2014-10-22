@@ -3,8 +3,12 @@ package com.mn.plug.idea.sparql4idea.ui;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.fileEditor.*;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.FileEditorManagerAdapter;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
@@ -26,6 +30,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author Andrey Kovrov
@@ -40,8 +45,8 @@ public class MainPanel {
   private final JButton delRepo;
   private final JButton editRepo;
   private final JBPanel optionPanel;
-  protected final DefaultComboBoxModel<DbLink> dblinkModel;
-  private final ComboBox repos;
+  protected final DefaultComboBoxModel<DbLink> dBlinkModel;
+  private final ComboBox repositories;
   private final JBCheckBox updateRequest;
   private final Project project;
   private final JLabel messageLabel;
@@ -49,6 +54,9 @@ public class MainPanel {
   private Document document;
   private final SparqlConsole console = new SparqlConsole();
   public volatile String text = "";
+  private final JProgressBar progressBar;
+  private static final Logger LOG                  =
+          Logger.getInstance("#com.mn.plug.idea.sparql4idea.ui.MainPanel");
 
   public MainPanel(final Project project) {
     this.project = project;
@@ -64,14 +72,15 @@ public class MainPanel {
     addRepo.setIcon(AllIcons.General.Add);
     delRepo = new JButton();
     delRepo.setIcon(AllIcons.General.Remove);
-    dblinkModel = new DefaultComboBoxModel<DbLink>();
-    repos = new ComboBox(dblinkModel);
+    dBlinkModel = new DefaultComboBoxModel<DbLink>();
+    repositories = new ComboBox(dBlinkModel);
     optionPanel = new JBPanel();
     editRepo = new JButton();
     editRepo.setIcon(AllIcons.General.Settings);
     resultTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     resultTable.setColumnSelectionAllowed(true);
     resultTable.setRowSelectionAllowed(true);
+    progressBar = new JProgressBar();
     //
     mainPanelLayout();
   }
@@ -102,7 +111,31 @@ public class MainPanel {
     executeButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        executeQuery(updateRequest.isSelected(), document.getText());
+        messageLabel.setText(BLANK);
+        final boolean selected = updateRequest.isSelected();
+        final String queryText = document.getText();
+        progressBar.setIndeterminate(true);
+        SwingWorker<Result, Result> swingWorker = new SwingWorker<Result, Result>() {
+          @Override
+          protected Result doInBackground() throws Exception {
+            return executeQuery(selected, queryText);
+          }
+          @Override
+          protected void done() {
+            try {
+              Result result = get();
+              resultTable.setModel(result.getTableDataModel());
+              messageLabel.setText(result.hasError() ? result.getErrorMessage() : result.getMessage());
+            } catch (InterruptedException ex) {
+              LOG.error("Data receive was interrupted!", ex);
+            } catch (ExecutionException ex) {
+              LOG.error("Exception occurred during data receive!", ex);
+            }finally {
+              progressBar.setIndeterminate(false);
+            }
+          }
+        };
+        swingWorker.execute();
       }
     });
     openConsole.addActionListener(new ActionListener() {
@@ -114,19 +147,10 @@ public class MainPanel {
     });
   }
 
-  // todo: remove from EDT
-  private void executeQuery(boolean isUpdate, String text) {
-    DbLink selectedItem = (DbLink) dblinkModel.getSelectedItem();
+  private Result executeQuery(boolean isUpdate, String text) {
+    DbLink selectedItem = (DbLink) dBlinkModel.getSelectedItem();
     SparqlClient client = new SparqlClient(selectedItem.uri.toString());
-    messageLabel.setText(BLANK);
-    if (isUpdate) {
-      Result result = client.writeQuery(text);
-      messageLabel.setText(result.hasError() ? result.getErrorMessage() : result.getMessage());
-      return;
-    }
-    Result result = client.readQuery(text);
-    resultTable.setModel(result.getTableDataModel());
-    messageLabel.setText(result.hasError() ? result.getErrorMessage() : result.getMessage());
+    return isUpdate ? client.writeQuery(text) : client.readQuery(text);
   }
 
   private void mainPanelLayout() {
@@ -143,7 +167,6 @@ public class MainPanel {
     c.weighty = 1;
     c.fill = GridBagConstraints.BOTH;
     mainPanel.add(jbScrollPane, c);
-    // c.gridheight = 1;
     c.weighty = 0.1;
     mainPanel.add(messageLabel, c);
   }
@@ -154,7 +177,7 @@ public class MainPanel {
     c.fill = GridBagConstraints.NONE;
     c.anchor = GridBagConstraints.WEST;
     c.gridx = GridBagConstraints.RELATIVE;
-    optionPanel.add(repos, c);
+    optionPanel.add(repositories, c);
     optionPanel.add(addRepo, c);
     optionPanel.add(delRepo, c);
     optionPanel.add(editRepo, c);
@@ -162,6 +185,7 @@ public class MainPanel {
     optionPanel.add(openConsole, c);
     optionPanel.add(updateRequest, c);
     optionPanel.add(executeButton, c);
+    optionPanel.add(progressBar, c);
   }
 
   public JPanel getMainPanel() {
@@ -181,7 +205,7 @@ public class MainPanel {
       project.getMessageBus().connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerAdapter() {
         @Override
         public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-          if(file.equals(console)){
+          if (file.equals(console)) {
             executeButton.setEnabled(false);
           }
         }

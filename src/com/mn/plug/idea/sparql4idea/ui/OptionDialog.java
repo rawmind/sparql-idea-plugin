@@ -37,7 +37,7 @@ public class OptionDialog extends DialogWrapper {
     name = new JTextField();
     uri = new JTextField();
     if (actionType == ActionType.MODIFY || actionType == ActionType.DELETE) {
-      DbLink selectedItem = (DbLink) parent.dblinkModel.getSelectedItem();
+      DbLink selectedItem = (DbLink) parent.dBlinkModel.getSelectedItem();
       name.setText(selectedItem.name);
       uri.setText(selectedItem.uri.toString());
     }
@@ -94,16 +94,16 @@ public class OptionDialog extends DialogWrapper {
     DbLink anObject = new DbLink(inputUri, name.getText());
     switch (actionType) {
       case ADD:
-        parent.dblinkModel.addElement(anObject);
-        parent.dblinkModel.setSelectedItem(anObject);
+        parent.dBlinkModel.addElement(anObject);
+        parent.dBlinkModel.setSelectedItem(anObject);
         break;
       case MODIFY:
-        parent.dblinkModel.removeElement(parent.dblinkModel.getSelectedItem());
-        parent.dblinkModel.addElement(anObject);
-        parent.dblinkModel.setSelectedItem(anObject);
+        parent.dBlinkModel.removeElement(parent.dBlinkModel.getSelectedItem());
+        parent.dBlinkModel.addElement(anObject);
+        parent.dBlinkModel.setSelectedItem(anObject);
         break;
       case DELETE:
-        parent.dblinkModel.removeElement(parent.dblinkModel.getSelectedItem());
+        parent.dBlinkModel.removeElement(parent.dBlinkModel.getSelectedItem());
         break;
     }
     super.doOKAction();

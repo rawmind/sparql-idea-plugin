@@ -62,7 +62,7 @@ public class SparqlPlugin implements ProjectComponent, PersistentStateComponent<
     if (state != null) {
       mainWindow.text = returnIfNotBlank(mainWindow.text, state.inputText);
       for (Map.Entry<String, String> link : state.links.entrySet()) {
-        mainWindow.dblinkModel.addElement(new DbLink(URI.create(link.getKey()), link.getValue()));
+        mainWindow.dBlinkModel.addElement(new DbLink(URI.create(link.getKey()), link.getValue()));
       }
     }
   }
@@ -91,8 +91,8 @@ public class SparqlPlugin implements ProjectComponent, PersistentStateComponent<
     try {
       SparqlPlugin.state = new ConfigurationState();
       state.inputText = returnIfNotBlank(state.inputText, mainWindow.getText());
-      for (int i = 0; i < mainWindow.dblinkModel.getSize(); i++) {
-        DbLink elementAt = mainWindow.dblinkModel.getElementAt(i);
+      for (int i = 0; i < mainWindow.dBlinkModel.getSize(); i++) {
+        DbLink elementAt = mainWindow.dBlinkModel.getElementAt(i);
         state.links.put(elementAt.uri.toString(), elementAt.name);
       }
     } finally {
