@@ -69,6 +69,7 @@
                          implementationClass="com.mn.plug.idea.sparql4idea.lang.folding.SparqlFoldingBuilder" />
     <lang.findUsagesProvider language="SPARQL"
                              implementationClass="com.mn.plug.idea.sparql4idea.lang.findUsages.SparqlFindUsagesProvider" />
+    <completion.contributor language="SPARQL" implementationClass="com.mn.plug.idea.sparql4idea.lang.completition.SimpleSparqlCompletion"/>
 
    <!-- <virtualFileSystem key="dbDummy" implementationClass="com.intellij.persistence.database.vfs.DatabaseVirtualFileSystem"/>
     <fileEditorProvider implementation="com.mn.plug.idea.sparql4idea.editor.SparqlFileEditorProvider"/>-->

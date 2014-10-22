@@ -142,7 +142,7 @@ public class MainPanel {
     c.weighty = 1;
     c.fill = GridBagConstraints.BOTH;
     mainPanel.add(jbScrollPane, c);
-   // c.gridheight = 1;
+    // c.gridheight = 1;
     c.weighty = 0.1;
     mainPanel.add(messageLabel, c);
   }
@@ -167,9 +167,8 @@ public class MainPanel {
     return mainPanel;
   }
 
-
-  public String getText(){
-    if(document!= null){
+  public String getText() {
+    if (document != null) {
       text = document.getText();
     }
     return StringUtils.defaultString(text);
