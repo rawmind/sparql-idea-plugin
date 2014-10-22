@@ -2,6 +2,7 @@ package com.mn.plug.idea.sparql4idea.ui;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.mn.plug.idea.sparql4idea.core.DbLink;
@@ -16,18 +17,22 @@ import java.net.URI;
  */
 public class OptionDialog extends DialogWrapper {
 
+  public static final double LABEL_WEIGHT = 0.1;
+  public static final double PANEL_WEIGHT = 1.9;
+  public static final Dimension PANEL_MIN_SIZE = new Dimension(400, 50);
   private final JBPanel panel;
   private final JTextField name;
   private final JTextField uri;
   private final MainPanel parent;
   private final ActionType actionType;
+  private final JBPopupFactory popupFactory;
 
-  protected OptionDialog(@Nullable Project project, final MainPanel parent, ActionType actionType) {
+
+  public OptionDialog(@Nullable Project project, final MainPanel parent, ActionType actionType) {
     super(project);
     this.parent = parent;
     this.actionType = actionType;
     setTitle(actionType.getTitle());
-    super.setSize(500, 100);
     panel = new JBPanel(new GridBagLayout());
     name = new JTextField();
     uri = new JTextField();
@@ -36,29 +41,38 @@ public class OptionDialog extends DialogWrapper {
       name.setText(selectedItem.name);
       uri.setText(selectedItem.uri.toString());
     }
+    popupFactory = JBPopupFactory.getInstance();
+    panel.setMinimumSize(PANEL_MIN_SIZE);
     name.setEnabled(actionType.modifyAccepted);
     uri.setEnabled(actionType.modifyAccepted);
+    setUpLayout();
+    init();
+  }
+
+  private void setUpLayout() {
     GridBagConstraints c = new GridBagConstraints();
     c.fill = GridBagConstraints.BOTH;
-    c.anchor = GridBagConstraints.WEST;
+    c.anchor = GridBagConstraints.EAST;
     c.gridwidth = 1;
     c.gridheight = 1;
-    c.weightx = 0.3;
     c.gridx = 0;
     c.gridy = 0;
+    c.weightx = LABEL_WEIGHT;
     JBLabel nameLabel = new JBLabel("Name:");
     panel.add(nameLabel, c);
+    c.weightx = 1.7;
     c.gridy = 0;
     c.gridx = 1;
     panel.add(name, c);
+    c.weightx = LABEL_WEIGHT;
     c.gridy = 1;
     c.gridx = 0;
     JBLabel uriLabel = new JBLabel("URI:");
     panel.add(uriLabel, c);
+    c.weightx = PANEL_WEIGHT;
     c.gridy = 1;
     c.gridx = 1;
     panel.add(uri, c);
-    init();
   }
 
   @Nullable
@@ -69,7 +83,15 @@ public class OptionDialog extends DialogWrapper {
 
   @Override
   protected void doOKAction() {
-    DbLink anObject = new DbLink(URI.create(uri.getText()), name.getText());
+    URI inputUri;
+    try {
+      inputUri = URI.create(uri.getText());
+    } catch (IllegalArgumentException e) {
+      popupFactory.createMessage("Wrong uri: "+e.getMessage());
+      //e.printStackTrace();
+      return;
+    }
+    DbLink anObject = new DbLink(inputUri, name.getText());
     switch (actionType) {
       case ADD:
         parent.dblinkModel.addElement(anObject);

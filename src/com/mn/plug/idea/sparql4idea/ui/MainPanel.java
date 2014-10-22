@@ -4,12 +4,12 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
@@ -20,6 +20,7 @@ import com.mn.plug.idea.sparql4idea.core.SparqlClient;
 import com.mn.plug.idea.sparql4idea.vfs.SparqlConsole;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -177,6 +178,14 @@ public class MainPanel {
   private void createConsole() {
     FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
     if (!fileEditorManager.isFileOpen(console)) {
+      project.getMessageBus().connect(project).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerAdapter() {
+        @Override
+        public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+          if(file.equals(console)){
+            executeButton.setEnabled(false);
+          }
+        }
+      });
       FileEditor[] fileEditors = fileEditorManager.openFile(console, true);
       Document[] documents = TextEditorProvider.getDocuments(fileEditors[0]);
       if (ArrayUtils.isEmpty(documents)) {
