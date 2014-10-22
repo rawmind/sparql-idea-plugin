@@ -8,6 +8,7 @@ import javax.swing.table.TableModel;
  */
 public abstract class AbstractResult implements Result {
 
+  private long connectionTime;
   private String errorMessage;
   private boolean errorOccurred;
   private long queryTime;
@@ -19,8 +20,9 @@ public abstract class AbstractResult implements Result {
     errorOccurred = true;
   }
 
-  protected AbstractResult(long queryTime) {
+  protected AbstractResult(long queryTime, long connectionTime) {
     this.queryTime = queryTime;
+    this.connectionTime = connectionTime;
   }
 
   public void setErrorMessage(String errorMessage) {
@@ -40,7 +42,7 @@ public abstract class AbstractResult implements Result {
 
   @Override
   public String getMessage() {
-    return String.format("Query time: %d ms", queryTime);
+    return String.format("Connection time: %d, query time: %d ms", connectionTime, queryTime);
   }
 
 }

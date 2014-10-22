@@ -1,5 +1,6 @@
 package com.mn.plug.idea.sparql4idea.core;
 
+import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.openrdf.query.*;
@@ -17,6 +18,9 @@ public class SparqlClient {
   final HTTPRepository repository;
   RepositoryConnection connection;
 
+  private static final Logger LOG                  =
+          Logger.getInstance("#com.mn.plug.idea.sparql4idea.core.SparqlClient");
+
   private static final DbLink[] remotesLinks = new DbLink[]{
           new DbLink(URI.create("http://dbpedia.org/sparql"), "dbPedia"),
   };
@@ -24,22 +28,27 @@ public class SparqlClient {
   public static final List<DbLink> DEFAULT_REPOSITORIES = Collections.unmodifiableList(Arrays.asList(remotesLinks));
 
   public final String url;
+  public long connectionTime;
 
   public SparqlClient(String url) {
     this.url = StringUtils.isBlank(url) ? DEFAULT_REPOSITORIES.get(0).uri.toString() : url;
+    StopWatch connectionTimeWatch = new StopWatch();
+    connectionTimeWatch.start();
     this.repository = connect(this.url);
+    connectionTimeWatch.stop();
+    connectionTime = connectionTimeWatch.getTime();
   }
 
   public Result readQuery(String query) {
     try {
-      connection = getConnection();
+
       StopWatch stopWatch = new StopWatch();
       stopWatch.start();
       TupleQuery tupleQuery =
-              connection.prepareTupleQuery(QueryLanguage.SPARQL, query);
+              getConnection().prepareTupleQuery(QueryLanguage.SPARQL, query);
       TupleQueryResult evaluate = tupleQuery.evaluate();
       stopWatch.stop();
-      return new TupleResult(evaluate, stopWatch.getTime());
+      return new TupleResult(evaluate, stopWatch.getTime(), connectionTime);
 
     } catch (RepositoryException e) {
       return new TupleResult(e.getMessage());
@@ -52,13 +61,12 @@ public class SparqlClient {
 
   public Result writeQuery(String query) {
     try {
-      getConnection();
-      Update update = connection.prepareUpdate(QueryLanguage.SPARQL, query);
-      StopWatch stopWatch = new StopWatch();
-      stopWatch.start();
+      Update update = getConnection().prepareUpdate(QueryLanguage.SPARQL, query);
+      StopWatch queryTimeWatch = new StopWatch();
+      queryTimeWatch.start();
       update.execute();
-      stopWatch.stop();
-      return new EmptyResult(stopWatch.getTime());
+      queryTimeWatch.stop();
+      return new EmptyResult(queryTimeWatch.getTime(), connectionTime);
 
     } catch (RepositoryException e) {
       return new TupleResult(e.getMessage());
@@ -70,8 +78,8 @@ public class SparqlClient {
   }
 
   private RepositoryConnection getConnection() throws RepositoryException {
-    if (connection == null /*|| !connection.isActive()*/) {
-      connection = repository.getConnection();
+    if (connection == null) {
+      return repository.getConnection();
     }
     return connection;
   }
@@ -80,8 +88,9 @@ public class SparqlClient {
     HTTPRepository repository = new HTTPRepository(repositoryUrl);
     try {
       repository.initialize();
+      connection = repository.getConnection();
     } catch (RepositoryException e) {
-      System.err.println(e.getMessage());
+      LOG.error("Can't connect to database:", e.getMessage());
     }
     return repository;
   }

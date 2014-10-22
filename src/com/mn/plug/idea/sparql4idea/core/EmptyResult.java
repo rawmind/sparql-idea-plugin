@@ -7,8 +7,8 @@ import javax.swing.table.TableModel;
  */
 public class EmptyResult extends AbstractResult {
 
-  public EmptyResult(long queryTime) {
-    super(queryTime);
+  public EmptyResult(long queryTime, long connectionTime) {
+    super(queryTime, connectionTime);
   }
 
   @Override

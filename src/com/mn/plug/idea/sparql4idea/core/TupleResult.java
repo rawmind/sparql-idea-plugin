@@ -17,8 +17,8 @@ public class TupleResult extends AbstractResult {
   private final TableModel model;
   private final NameSpaces normalizer = new NameSpaces();
 
-  public TupleResult(TupleQueryResult tupleQueryResult, long queryTime) {
-    super(queryTime);
+  public TupleResult(TupleQueryResult tupleQueryResult, long queryTime, long connectionTime) {
+    super(queryTime, connectionTime);
     DefaultTableModel tableModel = new DefaultTableModel(){
       @Override
       public boolean isCellEditable(int row, int column) {
