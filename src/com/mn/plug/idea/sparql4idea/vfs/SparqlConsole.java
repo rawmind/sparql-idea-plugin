@@ -30,6 +30,7 @@ public class SparqlConsole extends VirtualFile implements NonPhysicalFileSystem 
   }
 
   @Override
+  @NotNull
   public NewVirtualFileSystem getFileSystem() {
     return FAKE_FILE_SYSTEM;
   }

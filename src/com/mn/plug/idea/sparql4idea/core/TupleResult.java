@@ -15,7 +15,6 @@ import java.util.Vector;
 public class TupleResult extends AbstractResult {
 
   private final TableModel model;
-  private final NameSpaces normalizer = new NameSpaces();
 
   public TupleResult(TupleQueryResult tupleQueryResult, long queryTime, long connectionTime) {
     super(queryTime, connectionTime);
@@ -34,7 +33,7 @@ public class TupleResult extends AbstractResult {
         BindingSet row = tupleQueryResult.next();
         for (String binding : tupleQueryResult.getBindingNames()) {
           String e = row.getValue(binding).stringValue();
-          vector.add(normalizer.normalize(e));
+          vector.add(NameSpaces.normalize(e));
         }
         tableModel.addRow(vector);
       }

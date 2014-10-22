@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class NameSpaces {
+public final class NameSpaces {
 
     private static final Map<String, String> defaultNamespaces = new HashMap<String, String>();
 
@@ -62,7 +62,10 @@ public class NameSpaces {
         defaultNamespaces.put("skos", "http://www.w3.org/2004/02/skos/core#");
     }
 
-    public String normalize(String uri) {
+  private NameSpaces() {
+  }
+
+  public static String normalize(String uri) {
         for (Map.Entry<String, String> entry : defaultNamespaces.entrySet()) {
             String prefix = entry.getValue();
             if (StringUtils.startsWith(uri, prefix)) {
@@ -74,7 +77,7 @@ public class NameSpaces {
         return uri;
     }
 
-    public List<String> asPrefixList(String... filter) {
+    public static List<String> asPrefixList(String... filter) {
         boolean withoutFiltering = ArrayUtils.isEmpty(filter);
         List<String> prefixes = new ArrayList<String>(defaultNamespaces.size());
         for (Map.Entry<String, String> entry : defaultNamespaces.entrySet()) {
