@@ -36,7 +36,7 @@
   </ul>
   ]]></change-notes>
   <vendor email="git.feedback.rawmind@gmail.com" url="http://github.com/rawmind/">Andrey Kovrov</vendor>
-  <idea-version since-build="8000" />
+  <idea-version since-build="129.1525" />
   <category>Custom Languages</category>
 
   <application-components>
