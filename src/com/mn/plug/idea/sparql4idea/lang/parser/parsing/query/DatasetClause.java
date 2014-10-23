@@ -1,12 +1,12 @@
 package com.mn.plug.idea.sparql4idea.lang.parser.parsing.query;
 
 import com.intellij.lang.PsiBuilder;
-import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.lit.Literals;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.util.ParserUtils;
 
-import static com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes.*;
-import static com.mn.plug.idea.sparql4idea.lang.parser.SparqlElementTypes.DATASET_CLAUSE;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.DATASET_CLAUSE;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_FROM;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_NAMED;
 
 /**
  * Dataset clasue parser
@@ -16,9 +16,9 @@ import static com.mn.plug.idea.sparql4idea.lang.parser.SparqlElementTypes.DATASE
 public class DatasetClause {
 
   public static boolean parse(PsiBuilder builder) {
-    if (ParserUtils.lookAhead(builder, SparqlTokenTypes.KW_FROM)) {
+    if (ParserUtils.lookAhead(builder, KW_FROM)) {
       final PsiBuilder.Marker datasetClause = builder.mark();
-      if (ParserUtils.getToken(builder, SparqlTokenTypes.KW_FROM, "Expecting \"FROM\"")) {
+      if (ParserUtils.getToken(builder, KW_FROM, "Expecting \"FROM\"")) {
         parseDefaultGraphClause(builder);
       }
 

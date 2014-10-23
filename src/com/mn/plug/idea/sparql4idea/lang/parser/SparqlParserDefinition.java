@@ -13,8 +13,11 @@ import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.TokenSet;
 import com.mn.plug.idea.sparql4idea.SparqlFileType;
 import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlLexer;
-import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes;
-import com.mn.plug.idea.sparql4idea.lang.psi.*;
+import com.mn.plug.idea.sparql4idea.lang.psi.IriPsiElement;
+import com.mn.plug.idea.sparql4idea.lang.psi.PNameExpression;
+import com.mn.plug.idea.sparql4idea.lang.psi.PNameNsDeclaration;
+import com.mn.plug.idea.sparql4idea.lang.psi.SparqlFileImpl;
+import com.mn.plug.idea.sparql4idea.lang.psi.VariableList;
 import com.mn.plug.idea.sparql4idea.lang.psi.expressions.VariableDeclaration;
 import com.mn.plug.idea.sparql4idea.lang.psi.expressions.VariableReference;
 import com.mn.plug.idea.sparql4idea.lang.psi.graph.GraphNode;
@@ -26,7 +29,20 @@ import com.mn.plug.idea.sparql4idea.lang.psi.toplevel.PrefixDeclaration;
 import com.mn.plug.idea.sparql4idea.lang.psi.toplevel.PrefixDeclarations;
 import org.jetbrains.annotations.NotNull;
 
-import static com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypeSets.*;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.CURRENT;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.GRAPH_NODE;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.LIT_IRI;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.NAME_NS;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.PNAME;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.PREFIX_DECL;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.PREFIX_DECLS;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.PROJECTION_VARIABLES;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.SELECT_QUERY;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.TRIPLES_BLOCK;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.TRIPLE_PROPERTY;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.VAR_DECLARATION;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.VAR_REFERENCE;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.WHERE_CLAUSE;
 
 /**
  * Parser definition for SPARQL.
@@ -56,49 +72,49 @@ public class SparqlParserDefinition implements ParserDefinition {
   @NotNull
   @Override
   public TokenSet getWhitespaceTokens() {
-    return WHITESPACE;
+    return CURRENT.getWhitespace();
   }
 
   @NotNull
   @Override
   public TokenSet getCommentTokens() {
-    return COMMENTS;
+    return CURRENT.getComments();
   }
 
   @NotNull
   @Override
   public TokenSet getStringLiteralElements() {
-    return STRING_LITERALS;
+    return CURRENT.getStringLiterals();
   }
 
   @NotNull
   @Override
   public PsiElement createElement(ASTNode astNode) {
-    if (astNode.getElementType() == SparqlElementTypes.PREFIX_DECL) {
+    if (astNode.getElementType() == PREFIX_DECL) {
       return new PrefixDeclaration(astNode);
-    } else if (astNode.getElementType() == SparqlElementTypes.VAR_DECLARATION) {
+    } else if (astNode.getElementType() == VAR_DECLARATION) {
       return new VariableDeclaration(astNode);
-    } else if (astNode.getElementType() == SparqlElementTypes.VAR_REFERENCE) {
+    } else if (astNode.getElementType() == VAR_REFERENCE) {
       return new VariableReference(astNode);
-    } else if (astNode.getElementType() == SparqlTokenTypes.LIT_IRI) {
+    } else if (astNode.getElementType() == LIT_IRI) {
       return new IriPsiElement(astNode);
-    } else if (astNode.getElementType() == SparqlTokenTypes.NAME_NS) {
+    } else if (astNode.getElementType() == NAME_NS) {
       return new PNameNsDeclaration(astNode);
-    } else if (astNode.getElementType() == SparqlElementTypes.PNAME) {
+    } else if (astNode.getElementType() == PNAME) {
       return new PNameExpression(astNode);
-    } else if (astNode.getElementType() == SparqlElementTypes.PREFIX_DECLS) {
+    } else if (astNode.getElementType() == PREFIX_DECLS) {
       return new PrefixDeclarations(astNode);
-    } else if (astNode.getElementType() == SparqlElementTypes.PROJECTION_VARIABLES) {
+    } else if (astNode.getElementType() == PROJECTION_VARIABLES) {
       return new VariableList(astNode);
-    } else if (astNode.getElementType() == SparqlElementTypes.SELECT_QUERY) {
+    } else if (astNode.getElementType() == SELECT_QUERY) {
       return new SelectQuery(astNode);
-    } else if (astNode.getElementType() == SparqlElementTypes.WHERE_CLAUSE) {
+    } else if (astNode.getElementType() == WHERE_CLAUSE) {
       return new WhereClause(astNode);
-    } else if (astNode.getElementType() == SparqlElementTypes.TRIPLES_BLOCK) {
+    } else if (astNode.getElementType() == TRIPLES_BLOCK) {
       return new TripleBlock(astNode);
-    } else if (astNode.getElementType() == SparqlElementTypes.TRIPLE_PROPERTY) {
+    } else if (astNode.getElementType() == TRIPLE_PROPERTY) {
       return new TripleProperty(astNode);
-    } else if (astNode.getElementType() == SparqlElementTypes.GRAPH_NODE) {
+    } else if (astNode.getElementType() == GRAPH_NODE) {
       return new GraphNode(astNode);
     }
 

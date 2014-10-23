@@ -1,4 +1,4 @@
-package com.mn.plug.idea.sparql4idea.core;
+package com.mn.plug.idea.sparql4idea.client;
 
 import java.io.Serializable;
 import java.net.URI;
@@ -8,8 +8,8 @@ import java.net.URI;
  */
 public class DbLink implements Serializable {
 
-  public URI uri;
-  public String name;
+  public final URI uri;
+  public final String name;
 
   public DbLink(URI uri, String name) {
     this.uri = uri;
@@ -21,6 +21,7 @@ public class DbLink implements Serializable {
     return name;
   }
 
+  @SuppressWarnings("RedundantIfStatement")
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

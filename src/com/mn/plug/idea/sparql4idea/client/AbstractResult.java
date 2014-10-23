@@ -1,4 +1,4 @@
-package com.mn.plug.idea.sparql4idea.core;
+package com.mn.plug.idea.sparql4idea.client;
 
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;

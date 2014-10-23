@@ -1,8 +1,9 @@
 package com.mn.plug.idea.sparql4idea.lang.parser.parsing.graph;
 
 import com.intellij.lang.PsiBuilder;
-import com.mn.plug.idea.sparql4idea.lang.parser.SparqlElementTypes;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.lit.Literals;
+
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.GRAPH_NODE;
 
 /**
  * Graph node parser
@@ -15,7 +16,7 @@ public class GraphNode {
     final boolean result = Literals.parseVarOrTerm(builder) ||
             Triples.parseTriplesNode(builder);
     if (result) {
-      graphNode.done(SparqlElementTypes.GRAPH_NODE);
+      graphNode.done(GRAPH_NODE);
     } else {
       graphNode.drop();
     }

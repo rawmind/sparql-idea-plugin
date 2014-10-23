@@ -7,14 +7,14 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
 import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlLexer;
-import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypeSets;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes.BAD_CHARACTER;
-import static com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes.WHITE_SPACE;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.BAD_CHARACTER;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.CURRENT;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.WHITE_SPACE;
 
 /**
  * Syntax highlighter.
@@ -29,10 +29,10 @@ public class SparqlSyntaxHighlighter extends SyntaxHighlighterBase {
     // setup the styles
     ATTRIBUTES.put(BAD_CHARACTER, HighlighterColors.BAD_CHARACTER);
     ATTRIBUTES.put(WHITE_SPACE, HighlighterColors.TEXT);
-    fillMap(ATTRIBUTES, SparqlTokenTypeSets.KEYWORDS, DefaultLanguageHighlighterColors.KEYWORD);
-    fillMap(ATTRIBUTES, SparqlTokenTypeSets.NUMBER_LITERALS, DefaultLanguageHighlighterColors.NUMBER);
-    fillMap(ATTRIBUTES, SparqlTokenTypeSets.STRING_LITERALS, DefaultLanguageHighlighterColors.STRING);
-    fillMap(ATTRIBUTES, SparqlTokenTypeSets.COMMENTS, DefaultLanguageHighlighterColors.LINE_COMMENT);
+    fillMap(ATTRIBUTES, CURRENT.getKeywords(), DefaultLanguageHighlighterColors.KEYWORD);
+    fillMap(ATTRIBUTES, CURRENT.getNumberLiterals(), DefaultLanguageHighlighterColors.NUMBER);
+    fillMap(ATTRIBUTES, CURRENT.getStringLiterals(), DefaultLanguageHighlighterColors.STRING);
+    fillMap(ATTRIBUTES, CURRENT.getComments(), DefaultLanguageHighlighterColors.LINE_COMMENT);
   }
 
   @NotNull

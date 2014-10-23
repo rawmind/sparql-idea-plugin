@@ -5,7 +5,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
-import com.mn.plug.idea.sparql4idea.core.DbLink;
+import com.mn.plug.idea.sparql4idea.client.DbLink;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;

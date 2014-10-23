@@ -1,10 +1,25 @@
 package com.mn.plug.idea.sparql4idea.lang.parser.parsing.func;
 
 import com.intellij.lang.PsiBuilder;
-import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.expr.Expressions;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.lit.Literals;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.util.ParserUtils;
+
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_BOUND;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_DATATYPE;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_IS_BLANK;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_IS_IRI;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_IS_LITERAL;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_IS_URI;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_LANG;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_LANGMATCHES;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_REGEX;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_SAME_TERM;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_STR;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.LIT_NIL;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.OP_COMMA;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.OP_LROUND;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.OP_RROUND;
 
 /**
  * Generated JavaDoc Comment.
@@ -32,14 +47,14 @@ public class Functions {
   }
 
   private static boolean parseArgList(PsiBuilder builder) {
-    if (ParserUtils.getToken(builder, SparqlTokenTypes.LIT_NIL)) {
+    if (ParserUtils.getToken(builder, LIT_NIL)) {
       return true;
-    } else if (ParserUtils.getToken(builder, SparqlTokenTypes.OP_LROUND)) {
+    } else if (ParserUtils.getToken(builder, OP_LROUND)) {
       Expressions.parseExpression(builder);
-      while (ParserUtils.getToken(builder, SparqlTokenTypes.OP_COMMA)) {
+      while (ParserUtils.getToken(builder, OP_COMMA)) {
         Expressions.parseExpression(builder);
       }
-      ParserUtils.getToken(builder, SparqlTokenTypes.OP_RROUND, "Expecting ')'");
+      ParserUtils.getToken(builder, OP_RROUND, "Expecting ')'");
       return true;
     }
     return false;
@@ -47,43 +62,43 @@ public class Functions {
 
   public static boolean parseBuiltInCall(PsiBuilder builder) {
     // expr functions
-    if (ParserUtils.getToken(builder, SparqlTokenTypes.KW_STR) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.KW_LANG) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.KW_DATATYPE) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.KW_IS_IRI) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.KW_IS_URI) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.KW_IS_BLANK) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.KW_IS_LITERAL)) {
+    if (ParserUtils.getToken(builder, KW_STR) ||
+            ParserUtils.getToken(builder, KW_LANG) ||
+            ParserUtils.getToken(builder, KW_DATATYPE) ||
+            ParserUtils.getToken(builder, KW_IS_IRI) ||
+            ParserUtils.getToken(builder, KW_IS_URI) ||
+            ParserUtils.getToken(builder, KW_IS_BLANK) ||
+            ParserUtils.getToken(builder, KW_IS_LITERAL)) {
       if (!Expressions.parseBracketedExpr(builder)) {
         builder.error("Expecting '('");
       }
       return true;
 
       // two expr functions
-    } else if (ParserUtils.getToken(builder, SparqlTokenTypes.KW_LANGMATCHES) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.KW_SAME_TERM)) {
-      if (ParserUtils.getToken(builder, SparqlTokenTypes.OP_LROUND, "Expecting '('")) {
+    } else if (ParserUtils.getToken(builder, KW_LANGMATCHES) ||
+            ParserUtils.getToken(builder, KW_SAME_TERM)) {
+      if (ParserUtils.getToken(builder, OP_LROUND, "Expecting '('")) {
         Expressions.parseExpression(builder);
-        ParserUtils.getToken(builder, SparqlTokenTypes.OP_COMMA, "Expecting ','");
+        ParserUtils.getToken(builder, OP_COMMA, "Expecting ','");
         Expressions.parseExpression(builder);
-        ParserUtils.getToken(builder, SparqlTokenTypes.OP_RROUND, "Expecting ')'");
+        ParserUtils.getToken(builder, OP_RROUND, "Expecting ')'");
       }
       return true;
-    } else if (ParserUtils.getToken(builder, SparqlTokenTypes.KW_BOUND)) {
-      if (ParserUtils.getToken(builder, SparqlTokenTypes.OP_LROUND, "Expecting '('")) {
+    } else if (ParserUtils.getToken(builder, KW_BOUND)) {
+      if (ParserUtils.getToken(builder, OP_LROUND, "Expecting '('")) {
         Literals.parseVar(builder);
-        ParserUtils.getToken(builder, SparqlTokenTypes.OP_RROUND, "Expecting ')'");
+        ParserUtils.getToken(builder, OP_RROUND, "Expecting ')'");
       }
       return true;
-    } else if (ParserUtils.getToken(builder, SparqlTokenTypes.KW_REGEX)) {
-      if (ParserUtils.getToken(builder, SparqlTokenTypes.OP_LROUND, "Expecting '('")) {
+    } else if (ParserUtils.getToken(builder, KW_REGEX)) {
+      if (ParserUtils.getToken(builder, OP_LROUND, "Expecting '('")) {
         Expressions.parseExpression(builder);
-        ParserUtils.getToken(builder, SparqlTokenTypes.OP_COMMA, "Expecting ','");
+        ParserUtils.getToken(builder, OP_COMMA, "Expecting ','");
         Expressions.parseExpression(builder);
-        if (ParserUtils.getToken(builder, SparqlTokenTypes.OP_COMMA)) {
+        if (ParserUtils.getToken(builder, OP_COMMA)) {
           Expressions.parseExpression(builder);
         }
-        ParserUtils.getToken(builder, SparqlTokenTypes.OP_RROUND, "Expecting ')'");
+        ParserUtils.getToken(builder, OP_RROUND, "Expecting ')'");
       }
       return true;
     }

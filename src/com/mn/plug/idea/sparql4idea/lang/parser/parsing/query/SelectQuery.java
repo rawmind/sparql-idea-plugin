@@ -1,13 +1,17 @@
 package com.mn.plug.idea.sparql4idea.lang.parser.parsing.query;
 
 import com.intellij.lang.PsiBuilder;
-import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes;
-import com.mn.plug.idea.sparql4idea.lang.parser.SparqlElementTypes;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.common.SolutionModifiers;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.lit.Literals;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.util.ParserUtils;
 
-import static com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes.*;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_DISTINCT;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_REDUCED;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_SELECT;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.OP_MULT;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.PROJECTION_VARIABLES;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.SELECT_QUERY;
+
 
 /**
  * Select query parser.
@@ -17,10 +21,10 @@ import static com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes.*;
 public class SelectQuery {
 
   public static boolean parse(PsiBuilder builder) {
-    if (ParserUtils.lookAhead(builder, SparqlTokenTypes.KW_SELECT)) {
+    if (ParserUtils.lookAhead(builder, KW_SELECT)) {
       final PsiBuilder.Marker selectQuery = builder.mark();
 
-      if (ParserUtils.getToken(builder, SparqlTokenTypes.KW_SELECT, "Expecting \"SELECT\"")) {
+      if (ParserUtils.getToken(builder, KW_SELECT, "Expecting \"SELECT\"")) {
 
         if (!ParserUtils.getToken(builder, KW_DISTINCT)) {
           ParserUtils.getToken(builder, KW_REDUCED);
@@ -35,7 +39,7 @@ public class SelectQuery {
 
         SolutionModifiers.parse(builder);
       }
-      selectQuery.done(SparqlElementTypes.SELECT_QUERY);
+      selectQuery.done(SELECT_QUERY);
       return true;
     }
     return false;
@@ -53,6 +57,6 @@ public class SelectQuery {
       builder.error("Expecting Variable or *");
     }
 
-    vars.done(SparqlElementTypes.PROJECTION_VARIABLES);
+    vars.done(PROJECTION_VARIABLES);
   }
 }

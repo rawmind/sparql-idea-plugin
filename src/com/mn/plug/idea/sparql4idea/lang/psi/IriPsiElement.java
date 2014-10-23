@@ -3,8 +3,9 @@ package com.mn.plug.idea.sparql4idea.lang.psi;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes;
 import org.jetbrains.annotations.NotNull;
+
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.LIT_IRI_BODY;
 
 /**
  * Generated JavaDoc Comment.
@@ -18,7 +19,7 @@ public class IriPsiElement extends ASTWrapperPsiElement {
   }
 
   public String getIri() {
-    final PsiElement iri = findChildByType(SparqlTokenTypes.LIT_IRI_BODY);
+    final PsiElement iri = findChildByType(LIT_IRI_BODY);
     if (iri == null) {
       return "";
     }

@@ -1,9 +1,15 @@
-package com.mn.plug.idea.sparql4idea.core;
+package com.mn.plug.idea.sparql4idea.client;
 
 import com.intellij.openapi.diagnostic.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
-import org.openrdf.query.*;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryEvaluationException;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.Update;
+import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.http.HTTPRepository;
@@ -19,7 +25,7 @@ public class SparqlClient {
   RepositoryConnection connection;
 
   private static final Logger LOG                  =
-          Logger.getInstance("#com.mn.plug.idea.sparql4idea.core.SparqlClient");
+          Logger.getInstance("#com.mn.plug.idea.sparql4idea.client.SparqlClient");
 
   private static final DbLink[] remotesLinks = new DbLink[]{
           new DbLink(URI.create("http://dbpedia.org/sparql"), "dbPedia"),

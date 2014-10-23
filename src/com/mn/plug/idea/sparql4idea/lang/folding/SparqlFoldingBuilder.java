@@ -6,11 +6,13 @@ import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
-import com.mn.plug.idea.sparql4idea.lang.parser.SparqlElementTypes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.GROUP_GRAPH_PATTERN;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.PREFIX_DECLS;
 
 /**
  * Folding builder
@@ -23,18 +25,18 @@ public class SparqlFoldingBuilder implements FoldingBuilder {
   @Override
   public FoldingDescriptor[] buildFoldRegions(@NotNull ASTNode node, @NotNull Document document) {
     List<FoldingDescriptor> descriptors = new ArrayList<FoldingDescriptor>();
-    appendDescriptors(node, document, descriptors);
+    appendDescriptors(node, descriptors);
     return descriptors.toArray(new FoldingDescriptor[descriptors.size()]);
   }
 
-  private void appendDescriptors(ASTNode node, Document document, List<FoldingDescriptor> descriptors) {
+  private void appendDescriptors(ASTNode node, List<FoldingDescriptor> descriptors) {
     if (node == null) {
       return;
     }
     IElementType type = node.getElementType();
-    if (type == SparqlElementTypes.GROUP_GRAPH_PATTERN && isMultiline(node)) {
+    if (type == GROUP_GRAPH_PATTERN && isMultiline(node)) {
       descriptors.add(new FoldingDescriptor(node, node.getTextRange()));
-    } else if (type == SparqlElementTypes.PREFIX_DECLS && isMultiline(node)) {
+    } else if (type == PREFIX_DECLS && isMultiline(node)) {
       descriptors.add(new FoldingDescriptor(node, node.getTextRange()));
     }
 
@@ -42,7 +44,7 @@ public class SparqlFoldingBuilder implements FoldingBuilder {
     if (psi != null) {
       PsiElement child = psi.getFirstChild();
       while (child != null) {
-        appendDescriptors(child.getNode(), document, descriptors);
+        appendDescriptors(child.getNode(), descriptors);
         child = child.getNextSibling();
       }
     }
@@ -59,9 +61,9 @@ public class SparqlFoldingBuilder implements FoldingBuilder {
 
   @Override
   public String getPlaceholderText(@NotNull ASTNode node) {
-    if (node.getElementType() == SparqlElementTypes.GROUP_GRAPH_PATTERN) {
+    if (node.getElementType() == GROUP_GRAPH_PATTERN) {
       return "{ ... }";
-    } else if (node.getElementType() == SparqlElementTypes.PREFIX_DECLS) {
+    } else if (node.getElementType() == PREFIX_DECLS) {
       return "PREFIX ...";
     }
     return null;
@@ -69,6 +71,6 @@ public class SparqlFoldingBuilder implements FoldingBuilder {
 
   @Override
   public boolean isCollapsedByDefault(@NotNull ASTNode node) {
-    return node.getElementType() == SparqlElementTypes.PREFIX_DECLS;
+    return node.getElementType() == PREFIX_DECLS;
   }
 }

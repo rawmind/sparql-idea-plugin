@@ -1,4 +1,4 @@
-package com.mn.plug.idea.sparql4idea.core;
+package com.mn.plug.idea.sparql4idea.client;
 
 import com.mn.plug.idea.sparql4idea.lang.NameSpaces;
 import org.openrdf.query.BindingSet;

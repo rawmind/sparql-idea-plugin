@@ -1,11 +1,11 @@
 package com.mn.plug.idea.sparql4idea.lang.parser.parsing.lit;
 
 import com.intellij.lang.PsiBuilder;
-import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes;
-import com.mn.plug.idea.sparql4idea.lang.parser.SparqlElementTypes;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.graph.GraphNode;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.graph.Graphs;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.util.ParserUtils;
+
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.*;
 
 /**
  * Set of literal parsers
@@ -24,14 +24,14 @@ public class Literals {
   }
 
   public static boolean parseIri(PsiBuilder builder) {
-    if (ParserUtils.lookAhead(builder, SparqlTokenTypes.LIT_IRI_START)) {
+    if (ParserUtils.lookAhead(builder, LIT_IRI_START)) {
       final PsiBuilder.Marker iri = builder.mark();
-      if (ParserUtils.getToken(builder, SparqlTokenTypes.LIT_IRI_START, "Expecting '<'")) {
-        if (ParserUtils.getToken(builder, SparqlTokenTypes.LIT_IRI_BODY, "Expecting IRI body")) {
-          ParserUtils.getToken(builder, SparqlTokenTypes.LIT_IRI_END, "Expecting '>'");
+      if (ParserUtils.getToken(builder, LIT_IRI_START, "Expecting '<'")) {
+        if (ParserUtils.getToken(builder, LIT_IRI_BODY, "Expecting IRI body")) {
+          ParserUtils.getToken(builder, LIT_IRI_END, "Expecting '>'");
         }
       }
-      iri.done(SparqlTokenTypes.LIT_IRI);
+      iri.done(LIT_IRI);
       return true;
     }
     return false;
@@ -47,54 +47,54 @@ public class Literals {
   }
 
   public static boolean parsePNameLn(PsiBuilder builder) {
-    if (ParserUtils.lookAhead(builder, SparqlTokenTypes.NAME_NS)) {
+    if (ParserUtils.lookAhead(builder, NAME_NS)) {
       final PsiBuilder.Marker pname = builder.mark();
-      ParserUtils.eatElement(builder, SparqlTokenTypes.NAME_NS);
-      ParserUtils.getToken(builder, SparqlTokenTypes.NAME_COLON, "Expecting ':'");
-      if (!ParserUtils.lookAhead(builder, SparqlTokenTypes.NAME_LN)) {
+      ParserUtils.eatElement(builder, NAME_NS);
+      ParserUtils.getToken(builder, NAME_COLON, "Expecting ':'");
+      if (!ParserUtils.lookAhead(builder, NAME_LN)) {
         builder.error("Expecting local name part");
       } else {
-        ParserUtils.eatElement(builder, SparqlTokenTypes.NAME_LN);
+        ParserUtils.eatElement(builder, NAME_LN);
       }
-      pname.done(SparqlElementTypes.PNAME);
+      pname.done(PNAME);
       return true;
 
-    } else if (ParserUtils.lookAhead(builder, SparqlTokenTypes.NAME_COLON)) {
+    } else if (ParserUtils.lookAhead(builder, NAME_COLON)) {
       final PsiBuilder.Marker pname = builder.mark();
-      ParserUtils.getToken(builder, SparqlTokenTypes.NAME_COLON);
-      if (!ParserUtils.lookAhead(builder, SparqlTokenTypes.NAME_LN)) {
+      ParserUtils.getToken(builder, NAME_COLON);
+      if (!ParserUtils.lookAhead(builder, NAME_LN)) {
         builder.error("Expecting local name part");
       } else {
-        ParserUtils.eatElement(builder, SparqlTokenTypes.NAME_LN);
+        ParserUtils.eatElement(builder, NAME_LN);
       }
-      pname.done(SparqlElementTypes.PNAME);
+      pname.done(PNAME);
       return true;
     }
     return false;
   }
 
   public static boolean parsePNameNs(PsiBuilder builder) {
-    if (ParserUtils.lookAhead(builder, SparqlTokenTypes.NAME_NS)) {
+    if (ParserUtils.lookAhead(builder, NAME_NS)) {
       final PsiBuilder.Marker pname = builder.mark();
-      ParserUtils.eatElement(builder, SparqlTokenTypes.NAME_NS);
-      ParserUtils.getToken(builder, SparqlTokenTypes.NAME_COLON, "Expecting ':'");
-      pname.done(SparqlElementTypes.PNAME);
+      ParserUtils.eatElement(builder, NAME_NS);
+      ParserUtils.getToken(builder, NAME_COLON, "Expecting ':'");
+      pname.done(PNAME);
       return true;
-    } else if (ParserUtils.lookAhead(builder, SparqlTokenTypes.NAME_COLON)) {
-      ParserUtils.eatElement(builder, SparqlElementTypes.PNAME);
+    } else if (ParserUtils.lookAhead(builder, NAME_COLON)) {
+      ParserUtils.eatElement(builder, PNAME);
       return true;
     }
     return false;
   }
 
   public static boolean parseRdfLiteral(PsiBuilder builder) {
-    if (ParserUtils.getToken(builder, SparqlTokenTypes.LIT_STRING)) {
-      if (ParserUtils.getToken(builder, SparqlTokenTypes.OP_HATHAT)) {
+    if (ParserUtils.getToken(builder, LIT_STRING)) {
+      if (ParserUtils.getToken(builder, OP_HATHAT)) {
         if (!parseIriRef(builder)) {
           builder.error("Expecting IRIref");
         }
       } else {
-        ParserUtils.getToken(builder, SparqlTokenTypes.LANGTAG);
+        ParserUtils.getToken(builder, LANGTAG);
       }
       return true;
     }
@@ -108,35 +108,35 @@ public class Literals {
   }
 
   public static boolean parseNumericLiteralUnsigned(PsiBuilder builder) {
-    return ParserUtils.getToken(builder, SparqlTokenTypes.LIT_INTEGER) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.LIT_DECIMAL) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.LIT_DOUBLE);
+    return ParserUtils.getToken(builder, LIT_INTEGER) ||
+            ParserUtils.getToken(builder, LIT_DECIMAL) ||
+            ParserUtils.getToken(builder, LIT_DOUBLE);
   }
 
   public static boolean parseNumericLiteralPos(PsiBuilder builder) {
-    return ParserUtils.getToken(builder, SparqlTokenTypes.LIT_INTEGER_POS) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.LIT_DECIMAL_POS) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.LIT_DOUBLE_POS);
+    return ParserUtils.getToken(builder, LIT_INTEGER_POS) ||
+            ParserUtils.getToken(builder, LIT_DECIMAL_POS) ||
+            ParserUtils.getToken(builder, LIT_DOUBLE_POS);
   }
 
   public static boolean parseNumericLiteralNeg(PsiBuilder builder) {
-    return ParserUtils.getToken(builder, SparqlTokenTypes.LIT_INTEGER_NEG) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.LIT_DECIMAL_NEG) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.LIT_DOUBLE_NEG);
+    return ParserUtils.getToken(builder, LIT_INTEGER_NEG) ||
+            ParserUtils.getToken(builder, LIT_DECIMAL_NEG) ||
+            ParserUtils.getToken(builder, LIT_DOUBLE_NEG);
   }
 
   public static boolean parseBooleanLiteral(PsiBuilder builder) {
-    return ParserUtils.getToken(builder, SparqlTokenTypes.LIT_TRUE) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.LIT_FALSE);
+    return ParserUtils.getToken(builder, LIT_TRUE) ||
+            ParserUtils.getToken(builder, LIT_FALSE);
   }
 
   public static boolean parseBlankNode(PsiBuilder builder) {
-    return ParserUtils.getToken(builder, SparqlTokenTypes.LIT_BLANK_NODE) ||
-            ParserUtils.getToken(builder, SparqlTokenTypes.LIT_ANON);
+    return ParserUtils.getToken(builder, LIT_BLANK_NODE) ||
+            ParserUtils.getToken(builder, LIT_ANON);
   }
 
   public static boolean parseNil(PsiBuilder builder) {
-    return ParserUtils.getToken(builder, SparqlTokenTypes.LIT_NIL);
+    return ParserUtils.getToken(builder, LIT_NIL);
   }
 
   public static boolean parseVarOrIriRef(PsiBuilder builder) {
@@ -149,8 +149,8 @@ public class Literals {
   }
 
   public static boolean parseVar(PsiBuilder builder, boolean reference) {
-    if (ParserUtils.lookAhead(builder, SparqlTokenTypes.VAR)) {
-      ParserUtils.eatElement(builder, reference ? SparqlElementTypes.VAR_REFERENCE : SparqlElementTypes.VAR_DECLARATION);
+    if (ParserUtils.lookAhead(builder, VAR)) {
+      ParserUtils.eatElement(builder, reference ? VAR_REFERENCE : VAR_DECLARATION);
       return true;
     }
     return false;
@@ -166,9 +166,9 @@ public class Literals {
   }
 
   public static boolean parseCollection(PsiBuilder builder) {
-    if (ParserUtils.lookAhead(builder, SparqlTokenTypes.OP_LROUND)) {
+    if (ParserUtils.lookAhead(builder, OP_LROUND)) {
       final PsiBuilder.Marker collection = builder.mark();
-      if (ParserUtils.getToken(builder, SparqlTokenTypes.OP_LROUND)) {
+      if (ParserUtils.getToken(builder, OP_LROUND)) {
 
         if (GraphNode.parse(builder)) {
           //noinspection StatementWithEmptyBody
@@ -177,9 +177,9 @@ public class Literals {
           builder.error("Expecting Graph Node");
         }
 
-        ParserUtils.getToken(builder, SparqlTokenTypes.OP_RROUND, "Expecting ')'");
+        ParserUtils.getToken(builder, OP_RROUND, "Expecting ')'");
       }
-      collection.done(SparqlElementTypes.COLLECTION);
+      collection.done(COLLECTION);
       return true;
     }
     return false;

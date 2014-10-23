@@ -1,7 +1,8 @@
 package com.mn.plug.idea.sparql4idea.lang.parser.parsing.toplevel;
 
 import com.intellij.lang.PsiBuilder;
-import com.mn.plug.idea.sparql4idea.lang.parser.SparqlElementTypes;
+
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.PREFIX_DECLS;
 
 /**
  * Prologue parser.
@@ -18,7 +19,7 @@ public class Prologue {
     final PsiBuilder.Marker prefixes = builder.mark();
     while (PrefixDecl.parse(builder)) count++;
     if (count > 0) {
-      prefixes.done(SparqlElementTypes.PREFIX_DECLS);
+      prefixes.done(PREFIX_DECLS);
     } else {
       prefixes.drop();
     }

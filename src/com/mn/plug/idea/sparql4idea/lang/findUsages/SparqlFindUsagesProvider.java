@@ -7,12 +7,15 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.tree.TokenSet;
 import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlLexer;
-import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypeSets;
-import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes;
-import com.mn.plug.idea.sparql4idea.lang.parser.SparqlElementTypes;
 import com.mn.plug.idea.sparql4idea.lang.psi.PNameNsDeclaration;
 import com.mn.plug.idea.sparql4idea.lang.psi.expressions.VariableBase;
 import org.jetbrains.annotations.NotNull;
+
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.CURRENT;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.LIT_PNAME_LN;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.LIT_PNAME_NS;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.VAR_DECLARATION;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.VAR_REFERENCE;
 
 /**
  * Find usages provider
@@ -24,16 +27,13 @@ public class SparqlFindUsagesProvider implements FindUsagesProvider {
   @Override
   public WordsScanner getWordsScanner() {
     return new DefaultWordsScanner(new SparqlLexer(),
-            TokenSet.create(SparqlTokenTypes.LIT_PNAME_LN, SparqlTokenTypes.LIT_PNAME_NS,
-                    SparqlElementTypes.VAR_DECLARATION, SparqlElementTypes.VAR_REFERENCE),
-            SparqlTokenTypeSets.COMMENTS,
-            TokenSet.andSet(SparqlTokenTypeSets.NUMBER_LITERALS, SparqlTokenTypeSets.STRING_LITERALS));
+            TokenSet.create(LIT_PNAME_LN, LIT_PNAME_NS, VAR_DECLARATION, VAR_REFERENCE), CURRENT.getComments(),
+            TokenSet.andSet(CURRENT.getNumberLiterals(), CURRENT.getStringLiterals()));
   }
 
   @Override
   public boolean canFindUsagesFor(@NotNull PsiElement psiElement) {
-    return psiElement instanceof PNameNsDeclaration ||
-            psiElement instanceof VariableBase;
+    return psiElement instanceof PNameNsDeclaration || psiElement instanceof VariableBase;
   }
 
   @Override

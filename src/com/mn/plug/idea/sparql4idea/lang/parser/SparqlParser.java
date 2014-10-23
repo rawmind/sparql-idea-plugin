@@ -7,8 +7,6 @@ import com.intellij.psi.tree.IElementType;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.toplevel.Query;
 import org.jetbrains.annotations.NotNull;
 
-import static com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes.*;
-import static com.mn.plug.idea.sparql4idea.lang.parser.SparqlElementTypes.*;
 
 /**
  * Parser implementation for SPARQL files

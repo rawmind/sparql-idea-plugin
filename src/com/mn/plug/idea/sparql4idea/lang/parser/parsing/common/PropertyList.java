@@ -1,11 +1,13 @@
 package com.mn.plug.idea.sparql4idea.lang.parser.parsing.common;
 
 import com.intellij.lang.PsiBuilder;
-import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes;
-import com.mn.plug.idea.sparql4idea.lang.parser.SparqlElementTypes;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.graph.GraphNode;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.lit.Verb;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.util.ParserUtils;
+
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.OP_COMMA;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.OP_SEMI;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.TRIPLE_PROPERTY;
 
 /**
  * PropertyList parser
@@ -15,7 +17,7 @@ import com.mn.plug.idea.sparql4idea.lang.parser.parsing.util.ParserUtils;
 public class PropertyList {
   public static boolean parse(PsiBuilder builder) {
     if (parseVerbObjectList(builder)) {
-      while(ParserUtils.getToken(builder, SparqlTokenTypes.OP_SEMI)) {
+      while(ParserUtils.getToken(builder, OP_SEMI)) {
         parseVerbObjectList(builder);
       }
       return true;
@@ -27,7 +29,7 @@ public class PropertyList {
     final PsiBuilder.Marker tripleProperty = builder.mark();
     if (Verb.parse(builder)) {
       parseObjectList(builder);
-      tripleProperty.done(SparqlElementTypes.TRIPLE_PROPERTY);
+      tripleProperty.done(TRIPLE_PROPERTY);
       return true;
     }
     tripleProperty.drop();
@@ -36,7 +38,7 @@ public class PropertyList {
 
   private static boolean parseObjectList(PsiBuilder builder) {
     if (GraphNode.parse(builder)) {
-      while (ParserUtils.getToken(builder, SparqlTokenTypes.OP_COMMA)) {
+      while (ParserUtils.getToken(builder, OP_COMMA)) {
         if (!GraphNode.parse(builder)) {
           builder.error("Expecting GraphNode");
         }

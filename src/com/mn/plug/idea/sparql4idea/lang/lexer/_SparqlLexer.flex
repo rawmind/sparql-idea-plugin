@@ -3,7 +3,7 @@ package com.mn.plug.idea.sparql4idea.lang.lexer;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
-import static com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes.*;
+import static com.mn.plug.idea.sparql4idea.lang.lexer.Tokens.*;
 
 %%
 

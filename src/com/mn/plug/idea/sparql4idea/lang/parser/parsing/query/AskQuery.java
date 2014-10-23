@@ -1,9 +1,11 @@
 package com.mn.plug.idea.sparql4idea.lang.parser.parsing.query;
 
 import com.intellij.lang.PsiBuilder;
-import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes;
-import com.mn.plug.idea.sparql4idea.lang.parser.SparqlElementTypes;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.util.ParserUtils;
+
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.ASK_QUERY;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.KW_ASK;
+
 
 /**
  * Ask parser
@@ -12,9 +14,9 @@ import com.mn.plug.idea.sparql4idea.lang.parser.parsing.util.ParserUtils;
  */
 public class AskQuery {
   public static boolean parse(PsiBuilder builder) {
-    if (ParserUtils.lookAhead(builder, SparqlTokenTypes.KW_ASK)) {
+    if (ParserUtils.lookAhead(builder, KW_ASK)) {
       final PsiBuilder.Marker askQuery = builder.mark();
-      if (ParserUtils.getToken(builder, SparqlTokenTypes.KW_ASK, "Expecting 'ASK'")) {
+      if (ParserUtils.getToken(builder, KW_ASK, "Expecting 'ASK'")) {
         //noinspection StatementWithEmptyBody
         while (DatasetClause.parse(builder));
 
@@ -22,7 +24,7 @@ public class AskQuery {
           builder.error("Expecting WhereClause");
         }
       }
-      askQuery.done(SparqlElementTypes.ASK_QUERY);
+      askQuery.done(ASK_QUERY);
       return true;
     }
     return false;

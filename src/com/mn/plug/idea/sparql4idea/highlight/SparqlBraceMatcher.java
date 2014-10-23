@@ -4,7 +4,7 @@ import com.intellij.lang.BracePair;
 import com.intellij.lang.PairedBraceMatcher;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.tree.IElementType;
-import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes;
+import com.mn.plug.idea.sparql4idea.lang.Sparql;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,10 +16,10 @@ import org.jetbrains.annotations.Nullable;
 public class SparqlBraceMatcher implements PairedBraceMatcher {
 
   private static final BracePair[] PAIRS = {
-          new BracePair(SparqlTokenTypes.OP_LCURLY, SparqlTokenTypes.OP_RCURLY, true),
-          new BracePair(SparqlTokenTypes.OP_LROUND, SparqlTokenTypes.OP_RROUND, true),
-          new BracePair(SparqlTokenTypes.OP_LSQUARE, SparqlTokenTypes.OP_RSQUARE, false),
-          new BracePair(SparqlTokenTypes.LIT_IRI_START, SparqlTokenTypes.LIT_IRI_END, false),
+          new BracePair(Sparql.OP_LCURLY, Sparql.OP_RCURLY, true),
+          new BracePair(Sparql.OP_LROUND, Sparql.OP_RROUND, true),
+          new BracePair(Sparql.OP_LSQUARE, Sparql.OP_RSQUARE, false),
+          new BracePair(Sparql.LIT_IRI_START, Sparql.LIT_IRI_END, false),
   };
 
   @Override

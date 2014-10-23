@@ -1,11 +1,14 @@
 package com.mn.plug.idea.sparql4idea.lang.parser.parsing.graph;
 
 import com.intellij.lang.PsiBuilder;
-import com.mn.plug.idea.sparql4idea.lang.lexer.SparqlTokenTypes;
-import com.mn.plug.idea.sparql4idea.lang.parser.SparqlElementTypes;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.common.PropertyList;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.lit.Literals;
 import com.mn.plug.idea.sparql4idea.lang.parser.parsing.util.ParserUtils;
+
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.OP_DOT;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.OP_LSQUARE;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.OP_RSQUARE;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.TRIPLES_BLOCK;
 
 /**
  * Triples statements
@@ -24,11 +27,11 @@ public class Triples {
   }
 
   public static boolean parseBlankNodePropertyList(PsiBuilder builder) {
-    if (ParserUtils.getToken(builder, SparqlTokenTypes.OP_LSQUARE)) {
+    if (ParserUtils.getToken(builder, OP_LSQUARE)) {
       if (!PropertyList.parse(builder)) {
         builder.error("Expecting PropertyList");
       }
-      ParserUtils.getToken(builder, SparqlTokenTypes.OP_RSQUARE, "Expecting ']'");
+      ParserUtils.getToken(builder, OP_RSQUARE, "Expecting ']'");
       return true;
     }
     return false;
@@ -39,7 +42,7 @@ public class Triples {
       return false;
     }
 
-    while (ParserUtils.getToken(builder, SparqlTokenTypes.OP_DOT)) {
+    while (ParserUtils.getToken(builder, OP_DOT)) {
       if (!parseTriplesSameSubject(builder)) {
         break;
       }
@@ -53,11 +56,11 @@ public class Triples {
       if (!PropertyList.parse(builder)) {
         builder.error("Expecting PropertyListNotEmpty");
       }
-      triplesBlock.done(SparqlElementTypes.TRIPLES_BLOCK);
+      triplesBlock.done(TRIPLES_BLOCK);
       return true;
     } else if (parseTriplesNode(builder)) {
       PropertyList.parse(builder);
-      triplesBlock.done(SparqlElementTypes.TRIPLES_BLOCK);
+      triplesBlock.done(TRIPLES_BLOCK);
       return true;
     } else {
       triplesBlock.drop();
