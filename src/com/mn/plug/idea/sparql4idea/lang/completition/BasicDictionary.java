@@ -60,6 +60,13 @@ public class BasicDictionary {
           "isBLANK()",
           "isLITERAL()",
           "isNUMERIC()",
+          "COUNT",
+          "MIN",
+          "MAX",
+          "SAMPLE",
+          "SUM",
+          "GROUP_CONCAT",
+          "AVG"
   };
 
   static String[] KW_SPARQL_1_1 = new String[]{

@@ -3,7 +3,7 @@ package com.mn.plug.idea.sparql4idea.lang.lexer;
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 
-import static com.mn.plug.idea.sparql4idea.lang.lexer.Tokens.*;
+import static com.mn.plug.idea.sparql4idea.lang.Sparql.*;
 
 %%
 
@@ -175,6 +175,15 @@ PN_LOCAL = ( {PN_CHARS_U} | [0-9] ) (({PN_CHARS}|".")* {PN_CHARS})?
 	[sS][tT][rR][lL][aA][nN][gG] {return KW_STRLANG;}
 	[uU][uU][iI][dD] {return KW_UUID;}
 	[sS][tT][rR][uU][uU][iI][dD] {return KW_STRUUID;}
+//
+	[sS][uU][mM] {return KW_SUM;}
+  [cC][oO][uU][nN][tT] {return KW_COUNT;}
+  [mM][iI][nN] {return KW_MIN;}
+  [mM][aA][xX] {return KW_MAX;}
+  [aA][vV][gG] {return KW_AVG;}
+  [gG][rR][oO][uU][pP][_][cC][oO][nN][cC][aA][tT] {return KW_GROUP_CONCAT;}
+  [sS][aA][mM][pP][lL][eE] {return KW_SAMPLE;}
+
 
   {INTEGER} { return LIT_INTEGER; }
   {DECIMAL} { return LIT_DECIMAL; }

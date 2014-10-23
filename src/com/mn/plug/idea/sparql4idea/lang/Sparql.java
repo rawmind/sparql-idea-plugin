@@ -27,15 +27,15 @@ public enum Sparql {
 
   public abstract TokenSet getComments();
 
-  public TokenSet getWhitespace(){
+  public TokenSet getWhitespace() {
     return WHITESPACE;
   }
 
-  public TokenSet getStringLiterals(){
+  public TokenSet getStringLiterals() {
     return STRING_LITERALS;
   }
 
-  public TokenSet getNumberLiterals(){
+  public TokenSet getNumberLiterals() {
     return NUMBER_LITERALS;
   }
 
@@ -151,6 +151,16 @@ public enum Sparql {
   public static final IElementType KW_COALESCE = new SparqlElementType("KW_COALESCE");
   public static final IElementType KW_IN = new SparqlElementType("KW_IN");
 
+  // Aggregate algebra
+  public static final IElementType KW_SUM = new SparqlElementType("KW_SUM");
+  public static final IElementType KW_COUNT = new SparqlElementType("KW_COUNT");
+  public static final IElementType KW_MIN = new SparqlElementType("KW_MIN");
+  public static final IElementType KW_MAX = new SparqlElementType("KW_MAX");
+  public static final IElementType KW_AVG = new SparqlElementType("KW_AVG");
+  public static final IElementType KW_GROUP_CONCAT = new SparqlElementType("KW_GROUP_CONCAT");
+  public static final IElementType KW_SAMPLE = new SparqlElementType("KW_SAMPLE");
+
+  // Literals
   public static final IElementType LIT_TRUE = new SparqlElementType("true");
   public static final IElementType LIT_FALSE = new SparqlElementType("false");
   public static final IElementType LIT_STRING = new SparqlElementType("STRING");
@@ -202,7 +212,6 @@ public enum Sparql {
   public static final IElementType OP_DIV = new SparqlElementType("/");
   public static final IElementType OP_NOT = new SparqlElementType("!");
   public static final IElementType OP_HATHAT = new SparqlElementType("^^");
-
 
   public static final IElementType BASE_DECL = new SparqlElementType("BASE_DECL");
   public static final IElementType PREFIX_DECL = new SparqlElementType("PREFIX_DECL");
@@ -258,6 +267,7 @@ public enum Sparql {
           KW_IS_NUMERIC, KW_STR, KW_BNODE, KW_STRDT, KW_STRLANG, KW_UUID,
           KW_STRUUID, KW_LANG, KW_DATATYPE, KW_SAME_TERM, KW_IS_URI, KW_IS_IRI,
           KW_IS_BLANK, KW_IS_LITERAL, KW_BOUND, KW_IF, KW_COALESCE, KW_IN,
+          KW_SUM, KW_COUNT, KW_MIN, KW_MAX, KW_AVG, KW_GROUP_CONCAT, KW_SAMPLE,
           LIT_TRUE, LIT_FALSE
   };
 
