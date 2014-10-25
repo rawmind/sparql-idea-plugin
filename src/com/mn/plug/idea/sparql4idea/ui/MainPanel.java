@@ -13,6 +13,9 @@ import com.intellij.openapi.fileEditor.impl.text.TextEditorProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.ui.popup.Balloon;
+import com.intellij.openapi.ui.popup.BalloonBuilder;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBPanel;
@@ -27,9 +30,12 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -40,6 +46,7 @@ public class MainPanel {
   private static final String BLANK = "";
   private final SimpleToolWindowPanel mainPanel;
   private final JButton executeButton;
+  private final JButton cancelButton;
   private final JButton addRepo;
   private final JButton openConsole;
   private final JButton delRepo;
@@ -55,7 +62,9 @@ public class MainPanel {
   private final SparqlConsole console = new SparqlConsole();
   public volatile String text = "";
   private final JProgressBar progressBar;
-  private static final Logger LOG                  =
+  private final JBPopupFactory myPopupFactory;
+  private SwingWorker<Result, Result> swingWorker;
+  private static final Logger LOG =
           Logger.getInstance("#com.mn.plug.idea.sparql4idea.ui.MainPanel");
 
   public MainPanel(final Project project) {
@@ -65,7 +74,7 @@ public class MainPanel {
     mainPanel = new SimpleToolWindowPanel(false);
     executeButton = new JButton("Run");
     executeButton.setEnabled(false);
-    executeButton.setIcon(AllIcons.General.Run);
+    executeButton.setIcon(AllIcons.Actions.Execute);
     updateRequest = new JBCheckBox("Update", false);
     openConsole = new JButton("Console");
     addRepo = new JButton();
@@ -81,6 +90,10 @@ public class MainPanel {
     resultTable.setColumnSelectionAllowed(true);
     resultTable.setRowSelectionAllowed(true);
     progressBar = new JProgressBar();
+    progressBar.setMinimumSize(new Dimension(10, 30));
+    myPopupFactory = JBPopupFactory.getInstance();
+    cancelButton = new JButton();
+    cancelButton.setIcon(AllIcons.Actions.Suspend);
     //
     mainPanelLayout();
   }
@@ -97,6 +110,10 @@ public class MainPanel {
     editRepo.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
+        if (dBlinkModel.getSize() == 0) {
+          createBallon("You must add db connection first.", addRepo);
+          return;
+        }
         OptionDialog optionDialog = new OptionDialog(project, p, OptionDialog.ActionType.MODIFY);
         optionDialog.show();
       }
@@ -104,6 +121,9 @@ public class MainPanel {
     delRepo.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
+        if (dBlinkModel.getSize() == 0) {
+          return;
+        }
         OptionDialog optionDialog = new OptionDialog(project, p, OptionDialog.ActionType.DELETE);
         optionDialog.show();
       }
@@ -111,26 +131,38 @@ public class MainPanel {
     executeButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
+        if (dBlinkModel.getSize() == 0) {
+          createBallon("You must add at least one db connection.", addRepo);
+          return;
+        }
         messageLabel.setText(BLANK);
         final boolean selected = updateRequest.isSelected();
         final String queryText = document.getText();
         progressBar.setIndeterminate(true);
-        SwingWorker<Result, Result> swingWorker = new SwingWorker<Result, Result>() {
+        swingWorker = new SwingWorker<Result, Result>() {
           @Override
           protected Result doInBackground() throws Exception {
             return executeQuery(selected, queryText);
           }
+
           @Override
           protected void done() {
             try {
               Result result = get();
-              resultTable.setModel(result.getTableDataModel());
+              TableModel tableDataModel = result.getTableDataModel();
+              resultTable.setRowSorter(new TableRowSorter<TableModel>(tableDataModel));
+              resultTable.setShowColumns(true);
+              resultTable.setModel(tableDataModel);
               messageLabel.setText(result.hasError() ? result.getErrorMessage() : result.getMessage());
             } catch (InterruptedException ex) {
               LOG.error("Data receive was interrupted!", ex);
             } catch (ExecutionException ex) {
               LOG.error("Exception occurred during data receive!", ex);
-            }finally {
+            } catch (CancellationException ex) {
+              //it's ok
+              LOG.warn("Execution was canceled.");
+            }
+            finally {
               progressBar.setIndeterminate(false);
             }
           }
@@ -145,6 +177,34 @@ public class MainPanel {
         executeButton.setEnabled(true);
       }
     });
+    cancelButton.addActionListener(new AbstractAction() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if(swingWorker != null && !swingWorker.isCancelled() )
+        swingWorker.cancel(true);
+      }
+    });
+  }
+
+  public JPanel getMainPanel() {
+    return mainPanel;
+  }
+
+  public String getText() {
+    if (document != null) {
+      text = document.getText();
+    }
+    return StringUtils.defaultString(text);
+  }
+
+  private void createBallon(String text, JComponent inCenterOfThis) {
+    JPanel content = new JPanel(new GridBagLayout());
+    BalloonBuilder builder = myPopupFactory.createBalloonBuilder(content);
+    builder.setDialogMode(true);
+    builder.setAnimationCycle(200);
+    builder.setTitle(text);
+    Balloon balloon = builder.createBalloon();
+    balloon.showInCenterOf(inCenterOfThis);
   }
 
   private Result executeQuery(boolean isUpdate, String text) {
@@ -185,18 +245,8 @@ public class MainPanel {
     optionPanel.add(openConsole, c);
     optionPanel.add(updateRequest, c);
     optionPanel.add(executeButton, c);
+    optionPanel.add(cancelButton, c);
     optionPanel.add(progressBar, c);
-  }
-
-  public JPanel getMainPanel() {
-    return mainPanel;
-  }
-
-  public String getText() {
-    if (document != null) {
-      text = document.getText();
-    }
-    return StringUtils.defaultString(text);
   }
 
   private void createConsole() {
@@ -215,6 +265,7 @@ public class MainPanel {
       if (ArrayUtils.isEmpty(documents)) {
         throw new IllegalStateException("No documents found!");
       }
+      assert documents != null;
       document = documents[0];
       Application application = ApplicationManager.getApplication();
       application.runWriteAction(new Runnable() {

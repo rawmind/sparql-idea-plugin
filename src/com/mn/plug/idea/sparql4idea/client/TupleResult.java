@@ -1,6 +1,7 @@
 package com.mn.plug.idea.sparql4idea.client;
 
 import com.mn.plug.idea.sparql4idea.lang.NameSpaces;
+import com.mn.plug.idea.sparql4idea.ui.ResultTableModel;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResult;
@@ -18,12 +19,7 @@ public class TupleResult extends AbstractResult {
 
   public TupleResult(TupleQueryResult tupleQueryResult, long queryTime, long connectionTime) {
     super(queryTime, connectionTime);
-    DefaultTableModel tableModel = new DefaultTableModel(){
-      @Override
-      public boolean isCellEditable(int row, int column) {
-        return false;
-      }
-    };
+    DefaultTableModel tableModel = new ResultTableModel();
     try {
       for (String binding : tupleQueryResult.getBindingNames()) {
         tableModel.addColumn(binding);
