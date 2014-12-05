@@ -2,6 +2,7 @@ package com.mn.plug.idea.sparql4idea.client;
 
 import com.mn.plug.idea.sparql4idea.lang.NameSpaces;
 import com.mn.plug.idea.sparql4idea.ui.ResultTableModel;
+import org.openrdf.model.Value;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.TupleQueryResult;
@@ -16,6 +17,7 @@ import java.util.Vector;
 public class TupleResult extends AbstractResult {
 
   private final TableModel model;
+  private static final String EMPTY_STRING = "";
 
   public TupleResult(TupleQueryResult tupleQueryResult, long queryTime, long connectionTime) {
     super(queryTime, connectionTime);
@@ -28,7 +30,8 @@ public class TupleResult extends AbstractResult {
         Vector<String> vector = new Vector<String>();
         BindingSet row = tupleQueryResult.next();
         for (String binding : tupleQueryResult.getBindingNames()) {
-          String e = row.getValue(binding).stringValue();
+          Value value = row.getValue(binding);
+          String e = value == null ? EMPTY_STRING : value.stringValue();
           vector.add(NameSpaces.normalize(e));
         }
         tableModel.addRow(vector);
