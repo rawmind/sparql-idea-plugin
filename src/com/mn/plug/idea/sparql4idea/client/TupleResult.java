@@ -21,6 +21,10 @@ public class TupleResult extends AbstractResult {
 
   public TupleResult(TupleQueryResult tupleQueryResult, long queryTime, long connectionTime) {
     super(queryTime, connectionTime);
+    if (tupleQueryResult == null) {
+      model = EMPTY_MODEL;
+      return;
+    }
     DefaultTableModel tableModel = new ResultTableModel();
     try {
       for (String binding : tupleQueryResult.getBindingNames()) {
