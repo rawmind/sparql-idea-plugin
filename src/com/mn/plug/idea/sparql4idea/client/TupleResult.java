@@ -9,6 +9,8 @@ import org.openrdf.query.TupleQueryResult;
 
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -27,13 +29,17 @@ public class TupleResult extends AbstractResult {
     }
     DefaultTableModel tableModel = new ResultTableModel();
     try {
-      for (String binding : tupleQueryResult.getBindingNames()) {
+      List<String> bindingNames = tupleQueryResult.getBindingNames();
+      if (bindingNames == null) {
+        bindingNames = Collections.emptyList();
+      }
+      for (String binding : bindingNames) {
         tableModel.addColumn(binding);
       }
       while (tupleQueryResult.hasNext()) {
         Vector<String> vector = new Vector<String>();
         BindingSet row = tupleQueryResult.next();
-        for (String binding : tupleQueryResult.getBindingNames()) {
+        for (String binding : bindingNames) {
           Value value = row.getValue(binding);
           String e = value == null ? EMPTY_STRING : value.stringValue();
           vector.add(NameSpaces.normalize(e));
