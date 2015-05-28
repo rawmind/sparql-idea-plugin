@@ -31,6 +31,7 @@ public class TupleResult extends AbstractResult {
     try {
       List<String> bindingNames = tupleQueryResult.getBindingNames();
       if (bindingNames == null) {
+        //todo: for ASK query
         bindingNames = Collections.emptyList();
       }
       for (String binding : bindingNames) {
