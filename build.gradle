@@ -2,42 +2,24 @@ apply plugin: 'java'
 apply plugin: 'idea'
 apply from: file("${project.rootDir}/libraries.gradle")
 
-
-
-idea {
-   // pathVariables GRADLE_HOME: file('~/cool-software/gradle')
-    module {
-        outputDir = file('out')
-        testOutputDir = file('testOut')
-       // jdkName = '1.6'
-
-        iml {
-            withXml {
-                //todo: this option need to recognize project as plugin project
-               // def projectType = it.asNode().component.find { it.@type == 'PLUGIN_MODULE' }
-               // print projectType
-            }
-        }
-    }
-}
+//noinspection GroovyUnusedAssignment
+sourceCompatibility = 1.7
+//noinspection GroovyUnusedAssignment
+targetCompatibility = 1.7
+version = '0.2.0'
 
 configurations {
-  bundle
-  bundle.exclude group: "org.slf4j", module: "slf4j-api"
+    bundle.exclude group: "org.slf4j", module: "slf4j-api"
 }
 
+idea {
+    module {
+        outputDir = file('out')
+    }
+}
 
 repositories {
     mavenCentral()
-}
-
-
-sourceSets {
-    main {
-        java {
-            srcDir 'src'
-        }
-    }
 }
 
 task copyToLib(type: Copy) {
@@ -45,11 +27,8 @@ task copyToLib(type: Copy) {
     from configurations.bundle
 }
 
-
 dependencies {
-    compile (libraries.sesameRuntime)
-    compile fileTree(dir: '/home/akovrov/soft/idea-IC-135.445', include: '*.jar')
-   // compile fileTree(dir: '/home/akovrov/soft/idea-IC-135.445/lib', include: '*.jar')
-    compile fileTree(dir: '/home/akovrov/soft/idea-IC-135.445/lib/rt', include: '*.jar')
-    bundle (libraries.sesameRuntime)
+    bundle(libraries.sesameRuntime) {
+        exclude  group: "org.slf4j", module: "slf4j-api"
+    }
 }
